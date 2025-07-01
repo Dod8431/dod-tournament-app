@@ -19,19 +19,13 @@ export default function FaceOffPanel({
   videoA, videoB,
   revealedA, revealedB,
   onRevealA, onRevealB,
-  onVote
+  onVote,
+  voteRegistered,
+  votedFor,
+  onNextMatch
 }) {
-  // --- NEW: Reset local state when match changes ---
-  useEffect(() => {
-    setCollide(false);
-    setFlash(false);
-    setVotedFor(null);
-    setShowWinner(false);
-  }, [videoA?.ytId, videoB?.ytId]); // If ytId is not unique, use match.id
-
   const [collide, setCollide] = useState(false);
   const [flash, setFlash] = useState(false);
-  const [votedFor, setVotedFor] = useState(null);
   const [showWinner, setShowWinner] = useState(false);
 
   useEffect(() => {
@@ -42,6 +36,10 @@ export default function FaceOffPanel({
     }
     if (!(revealedA && revealedB)) setCollide(false);
   }, [revealedA, revealedB]);
+
+  useEffect(() => {
+    setShowWinner(false);
+  }, [videoA?.ytId, videoB?.ytId]);
 
   useEffect(() => {
     if (votedFor) {
@@ -180,7 +178,7 @@ export default function FaceOffPanel({
       </div>
 
       <AnimatePresence>
-        {collide && !votedFor && (
+        {collide && !voteRegistered && (
           <motion.div
             key="votes"
             initial={{ opacity: 0, y: 30 }}
@@ -192,21 +190,13 @@ export default function FaceOffPanel({
             <motion.button
               whileHover={{ scale: 1.07 }}
               whileTap={{ scale: 0.97 }}
-              onClick={() => {
-                setVotedFor("A");
-                // FIX: Immediately notify parent of the vote!
-                onVote && onVote("A");
-              }}
+              onClick={() => onVote("A")}
               className="text-2xl px-12 py-5 font-black rounded-2xl bg-blue_side hover:bg-blue-400 text-white shadow-xl border-2 border-blue-500 uppercase tracking-wider"
             >Vote Blue Side</motion.button>
             <motion.button
               whileHover={{ scale: 1.07 }}
               whileTap={{ scale: 0.97 }}
-              onClick={() => {
-                setVotedFor("B");
-                // FIX: Immediately notify parent of the vote!
-                onVote && onVote("B");
-              }}
+              onClick={() => onVote("B")}
               className="text-2xl px-12 py-5 font-black rounded-2xl bg-red_side hover:bg-red-400 text-white shadow-xl border-2 border-red-500 uppercase tracking-wider"
             >Vote Red Side</motion.button>
           </motion.div>
@@ -214,7 +204,7 @@ export default function FaceOffPanel({
       </AnimatePresence>
 
       <AnimatePresence>
-        {showWinner && (
+        {showWinner && voteRegistered && (
           <motion.div
             key="next"
             initial={{ opacity: 0, scale: 0.93 }}
@@ -224,13 +214,9 @@ export default function FaceOffPanel({
             className="flex z-30 mt-12"
           >
             <button
-              onClick={() => {
-                // Advance to next match. All state resets on new props.
-                setVotedFor(null);
-                setShowWinner(false);
-              }}
+              onClick={onNextMatch}
               className="text-xl px-8 py-4 font-extrabold rounded-xl bg-winner_gold text-blue-900 shadow-lg border-2 border-blue-500 mx-auto uppercase"
-            >Next Round</button>
+            >Next Match</button>
           </motion.div>
         )}
       </AnimatePresence>

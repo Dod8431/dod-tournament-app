@@ -17,6 +17,8 @@ function VotingPanel() {
   const [selected, setSelected] = useState({});
   const [voted, setVoted] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [voteRegistered, setVoteRegistered] = useState(false);
+  const [currentVote, setCurrentVote] = useState(null);
   const navigate = useNavigate();
 
   let user = null;
@@ -39,6 +41,12 @@ function VotingPanel() {
     return () => unsub && unsub();
     // eslint-disable-next-line
   }, [tid]);
+
+  // Reset state for each match
+  useEffect(() => {
+    setVoteRegistered(false);
+    setCurrentVote(null);
+  }, [currentIdx]);
 
   if (!user) {
     return (
@@ -104,6 +112,21 @@ function VotingPanel() {
     );
   }
 
+  // Critical: Register vote ONCE per match, only when a vote is cast, not on "Next Match"
+  const handleVote = id => {
+    if (!voteRegistered) {
+      submitVote(tid, user.userId, tournament.currentRound, match.id, id);
+      setSelected(prev => ({ ...prev, [match.id]: id }));
+      setVoteRegistered(true);
+      setCurrentVote(id);
+    }
+  };
+
+  const handleNextMatch = () => {
+    if (currentIdx < matches.length - 1) setCurrentIdx(currentIdx + 1);
+    else setVoted(true);
+  };
+
   return (
     <div className={`min-h-screen w-full ${bgClass} flex items-center justify-center`}>
       <FaceOffPanel
@@ -113,12 +136,10 @@ function VotingPanel() {
         revealedB={!!selected[`${currentIdx}_B_revealed`]}
         onRevealA={() => setSelected(prev => ({ ...prev, [`${currentIdx}_A_revealed`]: true }))}
         onRevealB={() => setSelected(prev => ({ ...prev, [`${currentIdx}_B_revealed`]: true }))}
-        onVote={id => {
-          submitVote(tid, user.userId, tournament.currentRound, match.id, id);
-          setSelected(prev => ({ ...prev, [match.id]: id }));
-          if (currentIdx < matches.length - 1) setCurrentIdx(currentIdx + 1);
-          else setVoted(true);
-        }}
+        onVote={handleVote}
+        voteRegistered={voteRegistered}
+        votedFor={currentVote}
+        onNextMatch={handleNextMatch}
       />
     </div>
   );
