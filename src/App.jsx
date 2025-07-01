@@ -22,11 +22,13 @@ export default function App() {
 
   return (
     <Router>
-      <NavBar isAdmin={isAdmin} />
-      <div className="pt-16">
-        <ErrorBoundary>
-          <AppRoutes isAdmin={isAdmin} />
-        </ErrorBoundary>
+      <div className="theme-gold-dark min-h-screen bg-main_bg text-main-gold-dark">
+        <NavBar isAdmin={isAdmin} />
+        <div className="pt-16">
+          <ErrorBoundary>
+            <AppRoutes isAdmin={isAdmin} />
+          </ErrorBoundary>
+        </div>
       </div>
     </Router>
   );

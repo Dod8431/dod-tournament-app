@@ -4,18 +4,6 @@ import { createTournament } from '../firebase/firestore';
 import { v4 as uuidv4 } from 'uuid';
 import { fetchYouTubeTitle } from '../utils/youtube';
 
-const palette = {
-  bg: "#10002b",
-  block: "#240046",
-  accent: "#9d4edd",
-  highlight: "#c77dff",
-  card: "#1e0039",
-  white: "#f9eeff",
-  error: "#ff6584",
-  glass: "rgba(36,0,70,0.85)",
-  border: "#7b2cbf"
-};
-
 function getLocalAdminId() {
   let id = localStorage.getItem("adminId");
   if (!id) {
@@ -95,34 +83,28 @@ function CreateTournament() {
     }
   };
 
-  // Palette-aware theme preview
+  // Palette-aware theme preview (these can be updated if you want only gold/dark variants)
   const themeDemo = {
-    classic: "bg-gradient-to-br from-[#240046] to-[#7b2cbf] border-[#9d4edd]",
-    retro: "bg-gradient-to-br from-[#3c096c] to-[#c77dff] border-[#e0aaff]",
-    meme: "bg-gradient-to-br from-[#8843ff] to-[#a100fe] border-[#e0aaff]",
-    dark: "bg-[#10002b] border-[#240046]",
-    light: "bg-[#ecdcf8] text-[#240046] border-[#b36ef3]",
+    classic: "bg-gradient-to-br from-[var(--main-dark)] to-[var(--main-gold-dark)] border-[var(--main-gold-dark)]",
+    retro: "bg-gradient-to-br from-[#3c096c] to-[#--main-bg] border-[#--main-bg]",
+    meme: "bg-gradient-to-br from-[#8843ff] to-[#a100fe] border-[#--main-bg]",
+    dark: "bg-[var(--main-bg)] border-[var(--main-dark)]",
+    light: "bg-[#ecdcf8] text-[var(--main-dark)] border-[var(--main-gold-dark)]",
   };
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-4"
-      style={{
-        background: `linear-gradient(135deg, ${palette.bg} 60%, ${palette.block} 100%)`,
-      }}
+      className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-[var(--main-bg)] to-[var(--main-dark)]"
     >
       <form
-        className="w-full max-w-lg flex flex-col gap-6 shadow-2xl p-8 rounded-3xl"
+        className="w-full max-w-lg flex flex-col gap-6 shadow-2xl p-8 rounded-3xl bg-[var(--main-dark)] border-2.5 border-[var(--main-gold)] text-[var(--main-gold)]"
         style={{
-          background: palette.glass,
-          border: `2.5px solid ${palette.border}`,
-          boxShadow: "0 6px 40px 0 #3c096c44",
-          color: palette.white,
+          boxShadow: "0 6px 40px 0 var(--main-gold-dark)",
           backdropFilter: "blur(8px)"
         }}
         onSubmit={handleSubmit}
       >
-        <h2 className="text-3xl font-black tracking-tight text-center mb-1 text-[#e0aaff] drop-shadow animate-fade-in">
+        <h2 className="text-3xl font-black tracking-tight text-center mb-1 text-[var(--main-gold)] drop-shadow animate-fade-in">
           Create Tournament
         </h2>
         <div
@@ -140,15 +122,14 @@ function CreateTournament() {
           onChange={e => setTitle(e.target.value)}
           required
           placeholder="Tournament Title"
-          className="rounded-xl px-4 py-3 text-base bg-[#1e0039] border border-[#9d4edd] focus:ring-2 focus:ring-[#c77dff] outline-none transition"
-          style={{ color: palette.white }}
+          className="rounded-xl px-4 py-3 text-base bg-[var(--main-bg)] border border-[var(--main-gold-dark)] focus:ring-2 focus:ring-[var(--main-gold)] outline-none transition text-[var(--main-gold)]"
         />
         <div className="flex flex-col sm:flex-row gap-2">
           <label className="font-semibold self-center w-32">Theme:</label>
           <select
             value={theme}
             onChange={e => setTheme(e.target.value)}
-            className="rounded-xl px-4 py-2 bg-[#1e0039] border border-[#7b2cbf] text-[#c77dff] focus:ring-2 focus:ring-[#e0aaff] font-semibold transition"
+            className="rounded-xl px-4 py-2 bg-[var(--main-bg)] border border-[var(--main-gold-dark)] text-[var(--main-gold)] focus:ring-2 focus:ring-[var(--main-gold)] font-semibold transition"
           >
             <option value="classic">Classic</option>
             <option value="retro">Retro</option>
@@ -162,7 +143,7 @@ function CreateTournament() {
           <select
             value={videoCount}
             onChange={e => handleCountChange(Number(e.target.value))}
-            className="rounded-xl px-4 py-2 bg-[#1e0039] border border-[#7b2cbf] text-[#e0aaff] focus:ring-2 focus:ring-[#e0aaff] font-semibold transition"
+            className="rounded-xl px-4 py-2 bg-[var(--main-bg)] border border-[var(--main-gold-dark)] text-[var(--main-gold)] focus:ring-2 focus:ring-[var(--main-gold)] font-semibold transition"
           >
             {[2, 4, 8, 16, 32, 64, 128].map(n => (
               <option key={n} value={n}>{n}</option>
@@ -174,7 +155,7 @@ function CreateTournament() {
             <input
               key={idx}
               type="text"
-              className="rounded-xl px-4 py-3 bg-[#1e0039] border border-[#9d4edd] focus:ring-2 focus:ring-[#c77dff] text-[#e0aaff] font-semibold outline-none transition"
+              className="rounded-xl px-4 py-3 bg-[var(--main-bg)] border border-[var(--main-gold-dark)] focus:ring-2 focus:ring-[var(--main-gold)] text-[var(--main-gold)] font-semibold outline-none transition"
               required
               placeholder={`YouTube Link #${idx + 1}`}
               value={v.ytUrl}
@@ -185,7 +166,7 @@ function CreateTournament() {
         </div>
         <button
           type="submit"
-          className={`rounded-2xl px-6 py-3 mt-2 font-bold tracking-wide text-lg shadow bg-[#7b2cbf] hover:bg-[#c77dff] text-white transition-all duration-300 ease-out focus:ring-2 focus:ring-[#e0aaff]`}
+          className="rounded-2xl px-6 py-3 mt-2 font-bold tracking-wide text-lg shadow bg-[var(--main-gold)] hover:bg-[var(--main-gold-dark)] text-[var(--main-dark)] transition-all duration-300 ease-out focus:ring-2 focus:ring-[var(--main-gold)]"
           disabled={loading}
         >
           {loading ? 'Creating...' : 'Create Tournament'}

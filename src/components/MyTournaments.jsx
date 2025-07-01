@@ -1,23 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getTournamentsByAdmin, archiveTournament, deleteTournament } from "../firebase/firestore";
 
-// Violet palette
-const palette = {
-  bg: "#10002b",
-  panel: "#1e0039",
-  border: "#7b2cbf",
-  card: "#240046",
-  accent: "#c77dff",
-  link: "#e0aaff",
-  button: "#7b2cbf",
-  buttonHover: "#c77dff",
-  delete: "#ff6584",
-  warning: "#fecd4d",
-  white: "#f9eeff",
-  glass: "rgba(36,0,70,0.93)",
-  shadow: "#9d4edd44",
-};
-
 function getLocalAdminId() {
   let id = localStorage.getItem("adminId");
   if (!id) {
@@ -70,22 +53,18 @@ export default function MyTournaments() {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center py-12 px-4"
-      style={{
-        background: `linear-gradient(135deg, ${palette.bg} 85%, ${palette.panel})`,
-        color: palette.white,
-      }}
+      className="min-h-screen flex flex-col items-center justify-center py-12 px-4 bg-gradient-to-br from-[var(--main-bg)] to-[var(--main-dark)] text-[var(--main-gold-dark)]"
     >
       <div className="w-full max-w-3xl">
-        <h1 className="text-4xl font-black mb-10 tracking-tight text-center text-[var(--violet-accent)] drop-shadow" style={{ color: palette.accent }}>
+        <h1 className="text-4xl font-black mb-10 tracking-tight text-center text-[var(--main-gold)] drop-shadow">
           My Tournaments
         </h1>
         <div className="flex flex-col gap-10">
           {/* Ongoing */}
           <div>
-            <h2 className="text-2xl font-bold mb-3 text-[var(--violet-link)]" style={{ color: palette.link }}>Ongoing</h2>
+            <h2 className="text-2xl font-bold mb-3 text-[var(--main-gold-dark)]">Ongoing</h2>
             {ongoing.length === 0 && (
-              <div className="rounded-xl px-4 py-3 text-base font-medium bg-[#200a33] text-[#c77dff] shadow-inner">
+              <div className="rounded-xl px-4 py-3 text-base font-medium bg-[var(--main-dark)] text-[var(--main-gold-dark)] shadow-inner">
                 No ongoing tournaments yet.
               </div>
             )}
@@ -96,20 +75,20 @@ export default function MyTournaments() {
                 return (
                   <li
                     key={id}
-                    className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 bg-[rgba(36,0,70,0.88)] border-l-8 border-[#9d4edd] rounded-2xl shadow-md p-5 transition hover:scale-[1.015]"
+                    className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 bg-[var(--main-dark)]/90 border-l-8 border-[var(--main-gold)] rounded-2xl shadow-md p-5 transition hover:scale-[1.015]"
                   >
                     <a
                       href={`/tournament/${id}/admin`}
-                      className="font-extrabold text-lg text-[#c77dff] hover:underline"
+                      className="font-extrabold text-lg text-[var(--main-gold)] hover:underline"
                     >
                       {t.title || <span className="text-[#ff6584]">Untitled</span>}
                     </a>
-                    <span className="ml-1 text-xs text-[#dec6f6]">
+                    <span className="ml-1 text-xs text-[var(--main-gold-dark)]">
                       (Created {t.createdAt?.toDate?.().toLocaleString?.() || "unknown"})
                     </span>
                     <div className="flex flex-row gap-2 ml-auto">
                       <button
-                        className="px-3 py-1 rounded-lg font-semibold bg-[#fecd4d] text-[#10002b] shadow hover:bg-[#ffd964] transition"
+                        className="px-3 py-1 rounded-lg font-semibold bg-[var(--main-gold)] text-[var(--main-dark)] shadow hover:bg-[var(--main-gold-dark)] hover:text-[var(--main-gold)] transition"
                         onClick={() => handleArchive(id)}
                         disabled={loading}
                       >Archive</button>
@@ -127,9 +106,9 @@ export default function MyTournaments() {
 
           {/* Closed */}
           <div>
-            <h2 className="text-2xl font-bold mt-6 mb-3 text-[#b36ef3]">Closed</h2>
+            <h2 className="text-2xl font-bold mt-6 mb-3 text-[var(--main-gold-dark)]">Closed</h2>
             {closed.length === 0 && (
-              <div className="rounded-xl px-4 py-3 text-base font-medium bg-[#1e0039] text-[#b36ef3] shadow-inner">
+              <div className="rounded-xl px-4 py-3 text-base font-medium bg-[var(--main-dark)] text-[var(--main-gold-dark)] shadow-inner">
                 No closed tournaments yet.
               </div>
             )}
@@ -140,15 +119,15 @@ export default function MyTournaments() {
                 return (
                   <li
                     key={id}
-                    className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 bg-[rgba(36,0,70,0.65)] border-l-8 border-[#7b2cbf] rounded-2xl shadow-md p-5"
+                    className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 bg-[var(--main-dark)]/75 border-l-8 border-[var(--main-gold-dark)] rounded-2xl shadow-md p-5"
                   >
                     <a
                       href={`/tournament/${id}/admin`}
-                      className="font-bold text-[#b36ef3] hover:underline"
+                      className="font-bold text-[var(--main-gold-dark)] hover:underline"
                     >
                       {t.title || <span className="text-[#ff6584]">Untitled</span>}
                     </a>
-                    <span className="ml-1 text-xs text-[#e0aaff]">
+                    <span className="ml-1 text-xs text-[var(--main-gold)]">
                       (Last active {t.createdAt?.toDate?.().toLocaleString?.() || "unknown"})
                     </span>
                     <button
@@ -164,7 +143,7 @@ export default function MyTournaments() {
         </div>
         <a
           href="/create"
-          className="inline-block mt-12 bg-[#7b2cbf] hover:bg-[#c77dff] text-white py-3 px-8 rounded-2xl font-extrabold text-lg shadow-xl transition-all duration-200 focus:ring-2 focus:ring-[#c77dff] focus:outline-none"
+          className="inline-block mt-12 bg-[var(--main-gold)] hover:bg-[var(--main-gold-dark)] text-[var(--main-dark)] py-3 px-8 rounded-2xl font-extrabold text-lg shadow-xl transition-all duration-200 focus:ring-2 focus:ring-[var(--main-gold)] focus:outline-none"
         >
           + Create Tournament
         </a>

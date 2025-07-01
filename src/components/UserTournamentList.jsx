@@ -1,20 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getAllActiveTournaments } from "../firebase/firestore";
 
-// Violet palette
-const palette = {
-  bg: "bg-[#16002b]",
-  grad: "bg-gradient-to-br from-[#240046] via-[#3c096c] to-[#10002b]",
-  card: "bg-[#3c096c]/90 border-[#b36ef3]",
-  accent: "text-[#e0aaff]",
-  accent2: "text-[#c77dff]",
-  accent3: "text-[#7b2cbf]",
-  border: "border-[#c77dff]",
-  muted: "text-[#b36ef3]",
-  error: "text-[#ff99ba]",
-  shadow: "shadow-[0_2px_32px_#10002b70]",
-};
-
 export default function UserTournamentList() {
   const [tournaments, setTournaments] = useState([]);
   useEffect(() => {
@@ -28,10 +14,13 @@ export default function UserTournamentList() {
   }
 
   return (
-    <div className={`min-h-screen w-full ${palette.grad} py-14 px-3 flex flex-col items-center`}>
+    <div className="min-h-screen w-full bg-gradient-to-br from-[var(--main-bg)] via-[var(--main-dark)] to-[var(--main-dark)] py-14 px-3 flex flex-col items-center">
       <h1
-        className="font-black text-4xl md:text-5xl mb-12 bg-[#240046a0] text-[#e0aaff] px-10 py-4 rounded-2xl border-4 border-[#c77dff] drop-shadow-lg tracking-tight animate-fade-in"
-        style={{backdropFilter: "blur(3px)", boxShadow: "0 8px 48px #7b2cbf44"}}
+        className="font-black text-4xl md:text-5xl mb-12 bg-[var(--main-dark)]/80 text-[var(--main-gold)] px-10 py-4 rounded-2xl border-4 border-[var(--main-gold)] drop-shadow-lg tracking-tight animate-fade-in"
+        style={{
+          backdropFilter: "blur(3px)",
+          boxShadow: "0 8px 48px var(--main-gold-dark), 0 2px 32px var(--main-dark)",
+        }}
       >
         Ongoing Tournaments
       </h1>
@@ -43,22 +32,26 @@ export default function UserTournamentList() {
             <a
               key={safeId}
               href={`/tournament/${safeId}/vote`}
-              className={`block transition-all duration-200 rounded-3xl p-7 ${palette.card} ${palette.border} border-2 ${palette.shadow} hover:scale-[1.05] hover:border-[#e0aaff] group`}
-              style={{ boxShadow: "0 2px 28px #200a3350" }}
+              className="block transition-all duration-200 rounded-3xl p-7 bg-[var(--main-dark)]/90 border-2 border-[var(--main-gold)] shadow-lg hover:scale-[1.05] hover:border-[var(--main-gold-dark)] group"
+              style={{ boxShadow: "0 2px 28px var(--main-dark)" }}
             >
-              <div className={`text-2xl font-extrabold mb-2 ${palette.accent2} group-hover:text-[#e0aaff]`}>
-                {t.title || <span className={palette.error}>Untitled</span>}
+              <div className="text-2xl font-extrabold mb-2 text-[var(--main-gold-dark)] group-hover:text-[var(--main-gold)]">
+                {t.title || (
+                  <span className="text-[#ff99ba]">Untitled</span>
+                )}
               </div>
               <div className="flex gap-2 items-center mt-2">
-                <span className="text-xs font-semibold uppercase text-[#e0aaff]">Videos:</span>
-                <span className="text-sm font-bold text-[#c77dff]">{Array.isArray(t.videos) ? t.videos.length : 0}</span>
+                <span className="text-xs font-semibold uppercase text-[var(--main-gold-dark)]">Videos:</span>
+                <span className="text-sm font-bold text-[var(--main-gold)]">
+                  {Array.isArray(t.videos) ? t.videos.length : 0}
+                </span>
               </div>
             </a>
           );
         })}
       </div>
       {tournaments.length === 0 && (
-        <div className="mt-16 text-xl font-semibold text-[#c77dff] bg-[#240046c0] px-6 py-4 rounded-xl border-2 border-[#7b2cbf] shadow">
+        <div className="mt-16 text-xl font-semibold text-[var(--main-gold-dark)] bg-[var(--main-dark)]/80 px-6 py-4 rounded-xl border-2 border-[var(--main-gold-dark)] shadow">
           No tournaments right now.
         </div>
       )}

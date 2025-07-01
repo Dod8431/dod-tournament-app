@@ -3,11 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { listenTournament, submitVote } from '../firebase/firestore';
 import FaceOffPanel from './FaceOffPanel';
 
-// Strong dark-violet background
-const bgClass = "bg-gradient-to-br from-[#240046] via-[#3c096c] to-[#10002b]";
-const accentText = "text-[#e0aaff]";
+// Use only gold/dark theme utility classes
+const bgClass = "bg-[var(--main-bg)]";
+const accentText = "text-[var(--main-gold)]";
 const errorText = "text-[#ff6f91]";
-const borderClass = "border-4 border-[#7b2cbf]";
+const borderClass = "border-4 border-[var(--main-gold-dark)]";
 
 function VotingPanel() {
   const { tid } = useParams();
@@ -42,7 +42,6 @@ function VotingPanel() {
     // eslint-disable-next-line
   }, [tid]);
 
-  // Reset state for each match
   useEffect(() => {
     setVoteRegistered(false);
     setCurrentVote(null);
@@ -80,9 +79,9 @@ function VotingPanel() {
     setTimeout(() => navigate(`/tournament/${tid}/recap`), 1200);
     return (
       <div className={`min-h-screen flex justify-center items-center ${bgClass}`}>
-        <div className="animate-fade-in-up px-8 py-6 rounded-2xl font-black text-3xl text-[#c77dff] border-4 border-[#9d4edd] shadow-2xl">
+        <div className="animate-fade-in-up px-8 py-6 rounded-2xl font-black text-3xl text-[var(--main-gold)] border-4 border-[var(--main-gold-dark)] shadow-2xl">
           <span>Round submitted!</span>
-          <div className="text-lg font-normal mt-2 text-[#e0aaff99]">Loading recap...</div>
+          <div className="text-lg font-normal mt-2 text-[var(--main-gold-dark)] opacity-70">Loading recap...</div>
         </div>
       </div>
     );
@@ -112,17 +111,15 @@ function VotingPanel() {
     );
   }
 
-  // Critical: Register vote ONCE per match, only when a vote is cast, not on "Next Match"
-const handleVote = side => {
-  // Determine which video ID is selected:
-  const votedVideoId = side === "A" ? videoA.id : videoB.id;
-  if (!voteRegistered) {
-    submitVote(tid, user.userId, tournament.currentRound, match.id, votedVideoId);
-    setSelected(prev => ({ ...prev, [match.id]: votedVideoId }));
-    setVoteRegistered(true);
-    setCurrentVote(side);
-  }
-};
+  const handleVote = side => {
+    const votedVideoId = side === "A" ? videoA.id : videoB.id;
+    if (!voteRegistered) {
+      submitVote(tid, user.userId, tournament.currentRound, match.id, votedVideoId);
+      setSelected(prev => ({ ...prev, [match.id]: votedVideoId }));
+      setVoteRegistered(true);
+      setCurrentVote(side);
+    }
+  };
 
   const handleNextMatch = () => {
     if (currentIdx < matches.length - 1) setCurrentIdx(currentIdx + 1);

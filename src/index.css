@@ -2,39 +2,48 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom dark body */
-body {
-  @apply bg-[#10002b] text-white font-sans;
+/* --- Global Dark/Gold Palette as CSS Vars --- */
+:root {
+  --main-bg: #23272a;
+  --main-dark: #18191a;
+  --main-gold: #FFD700;
+  --main-gold-dark: #B8860B;
+  --text-bright: #fffbea;
 }
 
-/* Brick/card look */
+/* --- Main App BG and Text --- */
+body {
+  @apply bg-[var(--main-bg)] text-[var(--main-gold-dark)] font-sans;
+}
+
+/* Card look, gold borders and background */
 .card {
-  @apply bg-[#240046] text-white rounded-2xl shadow-lg border border-[#3c096c] p-6 transition-all duration-200;
+  @apply bg-[var(--main-dark)] text-[var(--main-gold)] rounded-2xl shadow-lg border border-[var(--main-gold-dark)] p-6 transition-all duration-200;
 }
 
 .card-flat {
-  @apply bg-[#1e0039] rounded-xl border border-[#3c096c] shadow-none;
+  @apply bg-[var(--main-bg)] rounded-xl border border-[var(--main-gold-dark)] shadow-none;
 }
 
 /* Modern flat input */
 .input, .input-bordered {
-  @apply bg-[#200a33] border border-[#47137c] text-white rounded-lg px-4 py-2 outline-none transition focus:ring-2 focus:ring-[#c77dff];
+  @apply bg-[var(--main-dark)] border border-[var(--main-gold-dark)] text-[var(--main-gold)] rounded-lg px-4 py-2 outline-none transition focus:ring-2 focus:ring-[var(--main-gold)];
 }
 
-/* Flat button style */
+/* Gold Button Style */
 .btn, .btn-primary {
-  @apply bg-[#7b2cbf] text-white font-bold rounded-xl px-6 py-2 transition hover:bg-[#c77dff] active:scale-95 shadow-lg;
+  @apply bg-[var(--main-gold)] text-[var(--main-dark)] font-bold rounded-xl px-6 py-2 transition hover:bg-[var(--main-gold-dark)] hover:text-[var(--main-gold)] active:scale-95 shadow-lg border border-[var(--main-gold-dark)];
 }
 
 /* Utility for bricks */
 .brick {
-  @apply bg-[#240046] text-white rounded-xl shadow-lg border border-[#5a189a] p-4;
+  @apply bg-[var(--main-dark)] text-[var(--main-gold)] rounded-xl shadow-lg border border-[var(--main-gold-dark)] p-4;
 }
 
-/* Heading styles */
-h1, .h1 { @apply text-4xl font-extrabold text-[#c77dff] mb-8; }
-h2, .h2 { @apply text-2xl font-bold text-[#b172e4] mb-4; }
-h3, .h3 { @apply text-xl font-bold text-[#e0aaff]; }
+/* Heading styles (now gold themed) */
+h1, .h1 { @apply text-4xl font-extrabold text-[var(--main-gold)] mb-8; }
+h2, .h2 { @apply text-2xl font-bold text-[var(--main-gold-dark)] mb-4; }
+h3, .h3 { @apply text-xl font-bold text-[var(--main-gold)] mb-2; }
 
 /* Animations */
 @layer utilities {
@@ -62,113 +71,15 @@ h3, .h3 { @apply text-xl font-bold text-[#e0aaff]; }
   }
 }
 
-/* VS (FaceOff) Panel - epic versus lines, big frames */
+/* --- VS (FaceOff) Panel, Healthbars, Borders: Keep blue/red for match UX --- */
 .vs-bg {
-  background: linear-gradient(120deg, #10002b 55%, #200a33 100%);
+  background: linear-gradient(120deg, var(--main-bg) 55%, var(--main-dark) 100%);
 }
 .vs-vignette {
-  box-shadow: 0 0 80px 20px #3c096c inset;
+  box-shadow: 0 0 80px 20px var(--main-gold-dark) inset;
 }
 
-/* Add your palette as CSS vars if you want to reference them directly */
-:root {
-  --russian-violet: #10002b;
-  --russian-violet2: #240046;
-  --persian-indigo: #3c096c;
-  --tekhelet: #5a189a;
-  --french-violet: #7b2cbf;
-  --amethyst: #9d4edd;
-  --heliotrope: #c77dff;
-  --mauve: #e0aaff;
-}
-
-.healthbar-outer {
-  height: 18px;
-  width: 240px;
-  border-radius: 14px;
-  background: rgba(50,12,80,0.27);
-  box-shadow: 0 0 16px #0008 inset;
-  overflow: hidden;
-  margin-bottom: 10px;
-}
-.healthbar-inner {
-  height: 100%;
-  transition: width 0.8s cubic-bezier(.7,0,.7,1.1), background 0.2s;
-  background: linear-gradient(90deg, #ffd700 30%, #c77dff 100%);
-}
-.healthbar-blue {
-  background: linear-gradient(90deg, #5a189a 40%, #b36ef3 100%);
-}
-.healthbar-red {
-  background: linear-gradient(90deg, #ff3c6c 30%, #ffd6e0 100%);
-}
-.battle-border {
-  box-shadow: 0 0 18px 4px #c77dff, 0 0 40px 6px #5a189a80 inset;
-  animation: borderflicker 1s infinite alternate;
-}
-@keyframes borderflicker {
-  from { box-shadow: 0 0 18px 4px #c77dff, 0 0 30px 6px #5a189a80 inset; }
-  to   { box-shadow: 0 0 30px 9px #ffd700, 0 0 45px 10px #ffd70040 inset; }
-}
-/* Animated dark background */
-.battle-bg {
-  background: linear-gradient(120deg, #1e293b 0%, #111 100%);
-  min-height: 100vh;
-  width: 100vw;
-  overflow: hidden;
-  position: relative;
-}
-
-.battle-bg::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    45deg,
-    #222 0 2px, transparent 2px 40px
-  );
-  opacity: 0.09;
-  z-index: 0;
-  animation: bgmove 18s linear infinite;
-}
-
-@keyframes bgmove {
-  0% { background-position: 0 0; }
-  100% { background-position: 180px 80px; }
-}
-
-/* Crack down the center */
-.faceoff-crack {
-  pointer-events: none;
-  position: absolute;
-  top: 7vw;
-  left: 50%;
-  width: 6vw;
-  min-width: 40px;
-  max-width: 70px;
-  height: 44vh;
-  transform: translateX(-50%);
-  z-index: 30;
-}
-@media (max-width: 800px) {
-  .faceoff-crack { top: 80px; height: 32vh;}
-}
-.crack-svg {
-  width: 100%;
-  height: 100%;
-  stroke: #fff;
-  stroke-width: 2.5;
-  filter: drop-shadow(0 0 18px #fff5) drop-shadow(0 0 32px #be123c90);
-  opacity: 0.93;
-  animation: crackpulse 1.1s cubic-bezier(.82,0,.62,1) alternate infinite;
-}
-
-@keyframes crackpulse {
-  from { filter: drop-shadow(0 0 12px #fff) drop-shadow(0 0 16px #be123c55);}
-  to   { filter: drop-shadow(0 0 32px #fff) drop-shadow(0 0 44px #1e3a8a90);}
-}
-
-/* Health Bars, Battle Borders */
+/* --- Healthbars and battle UI: Keep blue/red for drama --- */
 .healthbar-outer {
   height: 16px;
   width: 220px;
@@ -205,3 +116,59 @@ h3, .h3 { @apply text-xl font-bold text-[#e0aaff]; }
   to   { box-shadow: 0 0 24px 7px #ef4444, 0 0 48px 12px #be123c88 inset; }
 }
 
+/* VS and battle BG - now dark with subtle gold vignette */
+.battle-bg {
+  background: linear-gradient(120deg, var(--main-bg) 0%, var(--main-dark) 100%);
+  min-height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
+}
+
+.battle-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    #222 0 2px, transparent 2px 40px
+  );
+  opacity: 0.09;
+  z-index: 0;
+  animation: bgmove 18s linear infinite;
+}
+@keyframes bgmove {
+  0% { background-position: 0 0; }
+  100% { background-position: 180px 80px; }
+}
+
+/* Center crack */
+.faceoff-crack {
+  pointer-events: none;
+  position: absolute;
+  top: 7vw;
+  left: 50%;
+  width: 6vw;
+  min-width: 40px;
+  max-width: 70px;
+  height: 44vh;
+  transform: translateX(-50%);
+  z-index: 30;
+}
+@media (max-width: 800px) {
+  .faceoff-crack { top: 80px; height: 32vh;}
+}
+.crack-svg {
+  width: 100%;
+  height: 100%;
+  stroke: #FFD700;
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 18px #FFD70099) drop-shadow(0 0 32px #FFD70055);
+  opacity: 0.93;
+  animation: crackpulse 1.1s cubic-bezier(.82,0,.62,1) alternate infinite;
+}
+
+@keyframes crackpulse {
+  from { filter: drop-shadow(0 0 12px #FFD700) drop-shadow(0 0 16px #FFD70055);}
+  to   { filter: drop-shadow(0 0 32px #FFD700) drop-shadow(0 0 44px #FFD70090);}
+}

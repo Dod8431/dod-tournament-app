@@ -3,12 +3,15 @@ import MyTournaments from "./MyTournaments";
 
 export default function AdminPanelHome() {
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-[#10002b] via-[#3c096c] to-[#240046] flex flex-col items-center justify-start py-16 animate-fade-in">
-      <div className="w-full max-w-3xl bg-[#240046]/90 rounded-2xl shadow-2xl border-2 border-[#7b2cbf] px-8 py-12 flex flex-col items-center">
-        <h1 className="text-4xl font-extrabold mb-10 text-[#c77dff] tracking-wider drop-shadow-lg">
-          Admin Panel
-        </h1>
-        <MyTournaments />
+    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-[var(--main-bg)] via-[var(--main-dark)] to-[var(--main-gold-dark)] py-16 animate-fade-in">
+      {/* Removed container max-width constraint */}
+      <div className="w-full h-full flex justify-center items-center p-8">
+        <div className="w-full h-full p-8 rounded-2xl bg-[var(--main-dark)]/90 border-2 border-[var(--main-gold-dark)] shadow-2xl flex flex-col gap-6 animate-fade-in">
+          <h1 className="text-4xl font-extrabold mb-10 text-[var(--main-gold)] tracking-wider drop-shadow-lg">
+            Admin Panel
+          </h1>
+          <MyTournaments />
+        </div>
       </div>
     </div>
   );

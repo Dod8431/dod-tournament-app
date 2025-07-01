@@ -59,8 +59,8 @@ export default function FaceOffPanel({
         transition={{ duration: 1 }}
         className="text-[5vw] font-black text-center uppercase tracking-wide"
         style={{
-          color: "white",
-          textShadow: "0 0 32px #fff, 0 0 64px #ef4444"
+          color: "var(--main-gold)",
+          textShadow: "0 0 32px var(--main-gold), 0 0 64px #ef4444"
         }}
       >VS</motion.div>
     </div>
@@ -88,6 +88,7 @@ export default function FaceOffPanel({
       {VS}
 
       <div className="relative z-10 flex flex-row w-full max-w-7xl items-center justify-center gap-20 pt-24 pb-16">
+        {/* Blue Side */}
         <div className="flex-1 flex flex-col items-center justify-center">
           <div className="healthbar-outer mb-4" style={{ width: '300px' }}>
             <div
@@ -132,6 +133,7 @@ export default function FaceOffPanel({
           )}
         </div>
 
+        {/* Red Side */}
         <div className="flex-1 flex flex-col items-center justify-center">
           <div className="healthbar-outer mb-4" style={{ width: '300px' }}>
             <div
@@ -177,6 +179,7 @@ export default function FaceOffPanel({
         </div>
       </div>
 
+      {/* Voting Buttons */}
       <AnimatePresence>
         {collide && !voteRegistered && (
           <motion.div
@@ -203,6 +206,7 @@ export default function FaceOffPanel({
         )}
       </AnimatePresence>
 
+      {/* Next Match */}
       <AnimatePresence>
         {showWinner && voteRegistered && (
           <motion.div
@@ -215,7 +219,7 @@ export default function FaceOffPanel({
           >
             <button
               onClick={onNextMatch}
-              className="text-xl px-8 py-4 font-extrabold rounded-xl bg-winner_gold text-blue-900 shadow-lg border-2 border-blue-500 mx-auto uppercase"
+              className="text-xl px-8 py-4 font-extrabold rounded-xl bg-[var(--main-gold)] text-[var(--main-dark)] shadow-lg border-2 border-[var(--main-gold-dark)] mx-auto uppercase"
             >Next Match</button>
           </motion.div>
         )}

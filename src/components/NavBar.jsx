@@ -1,15 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 
-const palette = {
-  bg: "#16002b",
-  glass: "rgba(36,0,70,0.93)",
-  accent: "#c77dff",
-  link: "#e0aaff",
-  hover: "#b36ef3",
-  white: "#f9eeff",
-};
-
 export default function NavBar() {
   const { pathname } = useLocation();
   let isAdmin = false;
@@ -19,11 +10,11 @@ export default function NavBar() {
 
   return (
     <nav
-      className="w-full z-40 fixed top-0 left-0 backdrop-blur bg-[rgba(36,0,70,0.95)]"
+      className="w-full z-40 fixed top-0 left-0 backdrop-blur bg-[var(--main-dark)]/95 border-b-2 border-[var(--main-gold)] shadow-lg"
       style={{
-        background: palette.glass,
-        borderBottom: `2px solid ${palette.accent}`,
-        boxShadow: `0 3px 16px 0 #1e003944`,
+        background: "var(--main-dark)",
+        borderBottom: "2px solid var(--main-gold)",
+        boxShadow: "0 3px 16px 0 var(--main-gold-dark)",
       }}
     >
       <div className="flex items-center justify-between max-w-6xl mx-auto px-4 py-3">
@@ -34,7 +25,7 @@ export default function NavBar() {
           )}
           <NavLink to="/admin" pathname={pathname} text="Admin Panel" />
         </div>
-        <span className="text-xs font-bold text-[#b36ef3] opacity-80 tracking-wider uppercase">
+        <span className="text-xs font-bold text-[var(--main-gold-dark)] opacity-80 tracking-wider uppercase">
           Dod Tournaments
         </span>
       </div>
@@ -49,13 +40,13 @@ function NavLink({ to, pathname, text }) {
     <Link
       to={to}
       className={`relative transition-all px-2 py-1
-        ${active ? "text-[#e0aaff]" : "text-[#c77dff]"}
-        hover:text-[#e0aaff] focus:text-[#fff]`}
+        ${active ? "text-[var(--main-gold)]" : "text-[var(--main-gold-dark)]"}
+        hover:text-[var(--main-gold)] focus:text-[var(--main-gold-dark)]`}
       style={{ transition: "color 0.22s" }}
     >
       <span>{text}</span>
       <span
-        className="absolute left-0 -bottom-0.5 w-full h-[2.5px] rounded bg-[#c77dff] transition-all duration-200"
+        className="absolute left-0 -bottom-0.5 w-full h-[2.5px] rounded bg-[var(--main-gold)] transition-all duration-200"
         style={{
           opacity: active ? 1 : 0,
           transform: active ? "scaleX(1)" : "scaleX(0.4)",

@@ -2,21 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getTournament } from '../firebase/firestore';
 
-const palette = {
-  bg: "#16002b",         // deepest
-  glass: "#240046f2",    // translucent
-  accent: "#c77dff",     // bright accent
-  accent2: "#e0aaff",    // lighter accent
-  card: "#240046",
-  block: "#3c096c",
-  fg: "#ecdcf8",
-  muted: "#9d4edd",
-  border: "#7b2cbf",
-  shadow: "#200a33aa",
-  error: "#ff99ba",
-  errorBg: "#310087"
-};
-
 function RecapScreen() {
   const { tid } = useParams();
   const [tournament, setTournament] = useState(null);
@@ -49,33 +34,34 @@ function RecapScreen() {
   }, [tid]);
 
   if (error) return (
-    <div className="flex justify-center items-center min-h-screen" style={{background: palette.bg, color: palette.error}}>
-      <div className="bg-[#310087] text-[#ff99ba] rounded-2xl p-8 shadow-lg text-xl font-bold border-2 border-[#c77dff]">
+    <div className="flex justify-center items-center min-h-screen bg-[var(--main-bg)] text-[#ff99ba]">
+      <div className="bg-[var(--main-dark)] text-[#ff99ba] rounded-2xl p-8 shadow-lg text-xl font-bold border-2 border-[var(--main-gold)]">
         {error}
       </div>
     </div>
   );
   if (!tournament || !myVotes)
-    return <div className="flex justify-center items-center min-h-screen" style={{background: palette.bg}}>Loading...</div>;
+    return <div className="flex justify-center items-center min-h-screen bg-[var(--main-bg)]">Loading...</div>;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center py-12 px-2" style={{background: palette.bg}}>
+    <div className="min-h-screen flex flex-col items-center justify-center py-12 px-2 bg-[var(--main-bg)]">
       <div
         className="w-full max-w-2xl rounded-2xl shadow-2xl border-4"
         style={{
-          background: `linear-gradient(140deg, ${palette.card} 60%, ${palette.block} 100%)`,
-          borderColor: palette.accent,
-          boxShadow: `0 6px 40px 0 ${palette.shadow}`
+          background: `linear-gradient(140deg, var(--main-dark) 60%, var(--main-bg) 100%)`,
+          borderColor: 'var(--main-gold)',
+          boxShadow: `0 6px 40px 0 var(--main-gold-dark)`
         }}
       >
         <div className="flex flex-col gap-3 p-8">
-          <h2 className="text-2xl font-extrabold mb-2 text-[#e0aaff] tracking-tight drop-shadow"
-              style={{textShadow: "0 2px 16px #9d4edd80"}}>
-            <span className="inline-block mr-2">🟣</span>
+          <h2 className="text-2xl font-extrabold mb-2 text-[var(--main-gold)] tracking-tight drop-shadow"
+              style={{textShadow: "0 2px 16px var(--main-gold-dark)"}}
+          >
+            <span className="inline-block mr-2" role="img" aria-label="gold medal">🏆</span>
             Your Votes — Round {tournament.currentRound}
           </h2>
           {myVotes.length === 0 ? (
-            <div className="text-[#b36ef3] text-lg font-semibold px-4 py-3 rounded-xl bg-[#24004670] border border-[#7b2cbf]">
+            <div className="text-[var(--main-gold-dark)] text-lg font-semibold px-4 py-3 rounded-xl bg-[var(--main-dark)]/70 border border-[var(--main-gold-dark)]">
               No votes yet!
             </div>
           ) : (
@@ -85,11 +71,11 @@ function RecapScreen() {
                 const votedVid = tournament.videos.find(x => x.id === v.votedFor);
                 return (
                   <li
-                    className="flex gap-4 items-center bg-[#3c096c] rounded-xl px-5 py-4 border-2"
+                    className="flex gap-4 items-center bg-[var(--main-dark)] rounded-xl px-5 py-4 border-2"
                     key={i}
                     style={{
-                      borderColor: palette.border,
-                      boxShadow: "0 2px 14px 0 #10002b88"
+                      borderColor: 'var(--main-gold)',
+                      boxShadow: "0 2px 14px 0 var(--main-gold-dark)"
                     }}
                   >
                     {votedVid ? (
@@ -101,15 +87,15 @@ function RecapScreen() {
                         frameBorder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
-                        className="rounded-lg border-2 border-[#b36ef3]"
+                        className="rounded-lg border-2 border-[var(--main-gold-dark)]"
                       ></iframe>
                     ) : (
-                      <div className="w-[140px] h-[80px] bg-[#7b2cbf] rounded-lg flex items-center justify-center text-xs text-[#e0aaff] border-2 border-[#c77dff]">
+                      <div className="w-[140px] h-[80px] bg-[var(--main-gold-dark)] rounded-lg flex items-center justify-center text-xs text-[var(--main-gold)] border-2 border-[var(--main-gold)]">
                         No video
                       </div>
                     )}
-                    <span className="font-bold text-lg text-[#e0aaff] drop-shadow" style={{textShadow:"0 1px 6px #c77dff80"}}>
-                      Voted: <span className="text-[#c77dff]">{votedVid?.title ? votedVid.title : "Unknown"}</span>
+                    <span className="font-bold text-lg text-[var(--main-gold)] drop-shadow" style={{textShadow:"0 1px 6px var(--main-gold-dark)"}}>
+                      Voted: <span className="text-[var(--main-gold-dark)]">{votedVid?.title ? votedVid.title : "Unknown"}</span>
                     </span>
                   </li>
                 );
