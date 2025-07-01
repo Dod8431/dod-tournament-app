@@ -1,12 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { getAllActiveTournaments } from "../firebase/firestore";
+import { getAllActiveTournaments, getAllArchivedTournaments } from "../firebase/firestore";
 
 export default function UserTournamentList() {
   const [tournaments, setTournaments] = useState([]);
+  const [archivedTournaments, setArchivedTournaments] = useState([]);
 
   useEffect(() => {
+    // Fetch ongoing tournaments
     getAllActiveTournaments().then(data => {
       setTournaments(Array.isArray(data) ? data : []);
+    });
+
+    // Fetch archived tournaments
+    getAllArchivedTournaments().then(data => {
+      setArchivedTournaments(Array.isArray(data) ? data : []);
     });
   }, []);
 
@@ -100,6 +107,22 @@ export default function UserTournamentList() {
           No tournaments right now.
         </div>
       )}
+
+      {/* Archived Tournaments */}
+      <h2 className="font-black text-2xl md:text-3xl mt-16 mb-6 text-[var(--main-gold)]">
+        Archived Tournaments
+      </h2>
+      <div className="w-full max-w-2xl grid grid-cols-1 gap-6 mb-10">
+        {archivedTournaments.length === 0 && (
+          <div className="text-lg text-[var(--main-gold-dark)]">No archived tournaments.</div>
+        )}
+        {archivedTournaments.map((t, i) => (
+          <div key={t.id} className="flex justify-between items-center p-4 rounded-xl bg-[var(--main-dark)] border-2 border-[var(--main-gold)] shadow">
+            <div className="font-semibold text-[var(--main-gold)]">{t.title || "Untitled"}</div>
+            <div className="italic text-[var(--main-gold-dark)]">Winner: <span className="font-bold">{t.winner || "TBD"}</span></div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

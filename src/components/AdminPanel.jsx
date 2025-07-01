@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { listenTournament } from '../firebase/firestore';
 import BracketDisplay from './BracketDisplay';
-import { advanceRound } from '../firebase/firestore'; // Adjust the path according to your project structure
-
+import { advanceRound, crownWinner } from '../firebase/firestore'; // Adjusted import path
 
 // Custom theme background
 const themeBg = {
@@ -14,6 +13,7 @@ const themeBg = {
 function AdminPanel() {
   const { tid } = useParams();
   const [tournament, setTournament] = useState(null);
+  const [winner, setWinner] = useState(null);
   const [canAdvance, setCanAdvance] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -51,8 +51,10 @@ function AdminPanel() {
       }
     }
     if (nextMatches.length === 0) {
-      const winner = tournament.videos.find(v => v.id === winners[0]);
-      alert("Tournament Complete! Winner: " + (winner?.title || "Unknown Video"));
+      const finalWinner = tournament.videos.find(v => v.id === winners[0]);
+      // Crown winner
+      await crownWinner(tid, finalWinner?.title || "Unknown Video");
+      setWinner(finalWinner?.title || "Unknown Video");
       setLoading(false);
       return;
     }
@@ -85,13 +87,20 @@ function AdminPanel() {
             <h3 className="font-semibold mb-3 text-[var(--main-gold-dark)] text-lg">Live Bracket</h3>
             <BracketDisplay tournament={tournament} />
           </div>
-<button
-  className={`py-4 px-8 rounded-xl bg-gradient-to-r from-[#EF4444] via-[#9d4edd] to-[#3B82F6] text-[var(--main-dark)] font-black text-lg tracking-wide shadow-xl border-2 border-[#3B82F6] hover:from-[#3B82F6] hover:to-[#EF4444] transition-all duration-200 active:scale-95 mt-8 mx-auto`}
-  disabled={!canAdvance || loading}
-  onClick={handleAdvance}
->
-  {loading ? 'Advancing...' : 'Proceed to Next Round'}
-</button>
+
+          {winner && (
+            <div className="winner-banner bg-yellow-200 text-xl font-bold rounded-xl px-6 py-4 shadow-lg text-center my-8">
+              🎉 Tournament Winner: <span className="text-[var(--main-gold-dark)]">{winner}</span> 🎉
+            </div>
+          )}
+
+          <button
+            className={`py-4 px-8 rounded-xl bg-gradient-to-r from-[#EF4444] via-[#9d4edd] to-[#3B82F6] text-[var(--main-dark)] font-black text-lg tracking-wide shadow-xl border-2 border-[#3B82F6] hover:from-[#3B82F6] hover:to-[#EF4444] transition-all duration-200 active:scale-95 mt-8 mx-auto`}
+            disabled={!canAdvance || loading}
+            onClick={handleAdvance}
+          >
+            {loading ? 'Advancing...' : 'Proceed to Next Round'}
+          </button>
         </div>
       </div>
     </div>

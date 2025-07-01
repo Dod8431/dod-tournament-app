@@ -1,4 +1,4 @@
-import { db } from './config';
+import { db } from './config'; 
 import {
   doc, setDoc, getDoc, addDoc, collection, updateDoc, arrayUnion, onSnapshot, query, where, getDocs, serverTimestamp
 } from 'firebase/firestore';
@@ -39,6 +39,14 @@ export async function getAllActiveTournaments() {
   const snap = await getDocs(q);
   return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 }
+
+// -------- NEW: Get all archived tournaments --------
+export async function getAllArchivedTournaments() {
+  const q = query(collection(db, 'tournaments'), where('isActive', '==', false));
+  const snap = await getDocs(q);
+  return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+}
+// ---------------------------------------------------
 
 export async function archiveTournament(tid) {
   const tRef = doc(db, "tournaments", tid);
@@ -82,6 +90,13 @@ export async function advanceRound(tid, newBracket, nextRound) {
     currentRound: nextRound
   });
 }
+
+// -------- Winner Util --------
+export async function crownWinner(tid, winner) {
+  const tRef = doc(db, 'tournaments', tid);
+  await updateDoc(tRef, { winner });
+}
+// ----------------------------
 
 // Check admin pin for a tournament
 export async function checkAdminPin(tid, pin) {
