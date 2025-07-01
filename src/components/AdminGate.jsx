@@ -6,7 +6,7 @@ export default function AdminGate({ children }) {
 
   function handleCheck(e) {
     e.preventDefault();
-    if (code === "8431") {
+    if (code === "0401") {
       localStorage.setItem("adminPanelCodeOk", "yes");
       setOk(true);
     } else {

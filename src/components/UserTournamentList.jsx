@@ -3,6 +3,7 @@ import { getAllActiveTournaments } from "../firebase/firestore";
 
 export default function UserTournamentList() {
   const [tournaments, setTournaments] = useState([]);
+
   useEffect(() => {
     getAllActiveTournaments().then(data => {
       setTournaments(Array.isArray(data) ? data : []);
@@ -11,6 +12,34 @@ export default function UserTournamentList() {
 
   function safeTournamentId(id) {
     return typeof id === "string" && /^[\w-]+$/.test(id) ? id : null;
+  }
+
+  // Add icon/emojis for special rounds
+  function getRoundBadge(roundName) {
+    if (!roundName) return null;
+    if (roundName.includes("Final")) {
+      if (roundName === "Final") return <>🏆 <span>{roundName}</span> 🏆</>;
+      if (roundName === "Semi-finals") return <>🥇 <span>{roundName}</span> 🥇</>;
+      return <span>{roundName}</span>;
+    }
+    if (roundName === "Quarter-finals") return <>✨ <span>{roundName}</span> ✨</>;
+    return <span>{roundName}</span>;
+  }
+
+  function getRoundNameBasedOnVideos(currentRound, videoCount) {
+    const roundMapping = {
+      128: ["Last 128", "Last 64", "Last 32", "Last 16", "Quarter-finals", "Semi-finals", "Final"],
+      64: ["Last 64", "Last 32", "Last 16", "Quarter-finals", "Semi-finals", "Final", ""],
+      32: ["Last 32", "Last 16", "Quarter-finals", "Semi-finals", "Final", "", ""],
+      16: ["Last 16", "Quarter-finals", "Semi-finals", "Final", "", "", ""],
+      8: ["Quarter-finals", "Semi-finals", "Final", "", "", "", ""],
+      4: ["Semi-finals", "Final", "", "", "", "", ""],
+      2: ["Final", "", "", "", "", "", ""]
+    };
+    if (roundMapping[videoCount] && currentRound <= roundMapping[videoCount].length) {
+      return roundMapping[videoCount][currentRound - 1];
+    }
+    return null;
   }
 
   return (
@@ -28,23 +57,39 @@ export default function UserTournamentList() {
         {tournaments.map((t, i) => {
           const safeId = safeTournamentId(t.id);
           if (!safeId) return null;
+
+          const videoCount = Array.isArray(t.videos) ? t.videos.length : 0;
+          const roundName = getRoundNameBasedOnVideos(t.currentRound, videoCount);
+
           return (
             <a
               key={safeId}
               href={`/tournament/${safeId}/vote`}
-              className="block transition-all duration-200 rounded-3xl p-7 bg-[var(--main-dark)]/90 border-2 border-[var(--main-gold)] shadow-lg hover:scale-[1.05] hover:border-[var(--main-gold-dark)] group"
+              className="block transition-all duration-200 rounded-3xl p-7 bg-gradient-to-br from-[var(--main-dark)] to-[var(--main-bg)] border-2 border-[var(--main-gold)] shadow-lg hover:scale-[1.03] hover:border-[var(--main-gold-dark)] hover:shadow-2xl group"
               style={{ boxShadow: "0 2px 28px var(--main-dark)" }}
             >
-              <div className="text-2xl font-extrabold mb-2 text-[var(--main-gold-dark)] group-hover:text-[var(--main-gold)]">
-                {t.title || (
-                  <span className="text-[#ff99ba]">Untitled</span>
+              <div className="flex flex-col gap-2 items-center">
+                <div className="text-2xl font-extrabold text-[var(--main-gold-dark)] group-hover:text-[var(--main-gold)] text-center mb-2">
+                  {t.title || (
+                    <span className="text-[#ff99ba]">Untitled</span>
+                  )}
+                </div>
+                {/* ROUND BADGE */}
+                {roundName && (
+                  <span className="
+                    inline-flex items-center gap-2 px-4 py-2 mb-2 rounded-full
+                    bg-gradient-to-r from-yellow-300/80 to-[var(--main-gold)] text-[var(--main-dark)]
+                    font-extrabold text-base shadow-md ring-2 ring-[var(--main-gold-dark)] animate-fade-in
+                  ">
+                    {getRoundBadge(roundName)}
+                  </span>
                 )}
-              </div>
-              <div className="flex gap-2 items-center mt-2">
-                <span className="text-xs font-semibold uppercase text-[var(--main-gold-dark)]">Videos:</span>
-                <span className="text-sm font-bold text-[var(--main-gold)]">
-                  {Array.isArray(t.videos) ? t.videos.length : 0}
-                </span>
+                <div className="flex gap-2 items-center mt-2 bg-[var(--main-dark)]/80 px-3 py-1 rounded-xl">
+                  <span className="text-xs font-semibold uppercase text-[var(--main-gold-dark)]">Videos:</span>
+                  <span className="text-sm font-bold text-[var(--main-gold)]">
+                    {videoCount}
+                  </span>
+                </div>
               </div>
             </a>
           );

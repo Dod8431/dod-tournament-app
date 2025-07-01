@@ -104,7 +104,9 @@ export default function FaceOffPanel({
               whileTap={{ scale: 0.95 }}
               onClick={onRevealA}
               className="bg-blue_side px-14 py-10 rounded-2xl text-3xl font-extrabold shadow-2xl border-4 border-blue-500 text-white focus:ring-2 ring-blue-400 transition-all"
-            >Reveal</motion.button>
+            >
+              Reveal
+            </motion.button>
           ) : (
             <motion.div
               initial={{ x: -120, scale: 0.94, opacity: 0 }}
@@ -125,12 +127,13 @@ export default function FaceOffPanel({
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
                 className="rounded-2xl"
-              ></iframe>
-              <div className="absolute left-0 bottom-0 w-full px-4 py-2 bg-gradient-to-t from-blue_side/90 to-transparent text-lg font-bold text-white text-center z-10">
-                {videoA.title}
-              </div>
+              />
             </motion.div>
           )}
+          {/* Title Below iFrame */}
+          <div className="mt-4 w-[460px] text-lg font-bold text-center text-white">
+            {videoA.title}
+          </div>
         </div>
 
         {/* Red Side */}
@@ -149,7 +152,9 @@ export default function FaceOffPanel({
               whileTap={{ scale: 0.95 }}
               onClick={onRevealB}
               className="bg-red_side px-14 py-10 rounded-2xl text-3xl font-extrabold shadow-2xl border-4 border-red-500 text-white focus:ring-2 ring-red-400 transition-all"
-            >Reveal</motion.button>
+            >
+              Reveal
+            </motion.button>
           ) : (
             <motion.div
               initial={{ x: 120, scale: 0.94, opacity: 0 }}
@@ -170,12 +175,13 @@ export default function FaceOffPanel({
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
                 className="rounded-2xl"
-              ></iframe>
-              <div className="absolute left-0 bottom-0 w-full px-4 py-2 bg-gradient-to-t from-red_side/90 to-transparent text-lg font-bold text-white text-center z-10">
-                {videoB.title}
-              </div>
+              />
             </motion.div>
           )}
+          {/* Title Below iFrame for Red Side */}
+          <div className="mt-4 w-[460px] text-lg font-bold text-center text-white">
+            {videoB.title}
+          </div>
         </div>
       </div>
 
@@ -195,13 +201,17 @@ export default function FaceOffPanel({
               whileTap={{ scale: 0.97 }}
               onClick={() => onVote("A")}
               className="text-2xl px-12 py-5 font-black rounded-2xl bg-blue_side hover:bg-blue-400 text-white shadow-xl border-2 border-blue-500 uppercase tracking-wider"
-            >Vote Blue Side</motion.button>
+            >
+              Vote Blue Side
+            </motion.button>
             <motion.button
               whileHover={{ scale: 1.07 }}
               whileTap={{ scale: 0.97 }}
               onClick={() => onVote("B")}
               className="text-2xl px-12 py-5 font-black rounded-2xl bg-red_side hover:bg-red-400 text-white shadow-xl border-2 border-red-500 uppercase tracking-wider"
-            >Vote Red Side</motion.button>
+            >
+              Vote Red Side
+            </motion.button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -220,7 +230,9 @@ export default function FaceOffPanel({
             <button
               onClick={onNextMatch}
               className="text-xl px-8 py-4 font-extrabold rounded-xl bg-[var(--main-gold)] text-[var(--main-dark)] shadow-lg border-2 border-[var(--main-gold-dark)] mx-auto uppercase"
-            >Next Match</button>
+            >
+              Next Match
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
