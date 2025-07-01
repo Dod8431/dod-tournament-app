@@ -19,7 +19,7 @@ export default function FaceOffPanel({
   videoA, videoB,
   revealedA, revealedB,
   onRevealA, onRevealB,
-  onVote
+  onVote // <-- Fix: This is now actually used for advancing!
 }) {
   const [collide, setCollide] = useState(false);
   const [flash, setFlash] = useState(false);
@@ -208,7 +208,10 @@ export default function FaceOffPanel({
             className="flex z-30 mt-12"
           >
             <button
-              onClick={() => window.location.reload()}
+              onClick={() => {
+                // FIX: Now call the parent onVote handler with the winner!
+                if (votedFor) onVote && onVote(votedFor);
+              }}
               className="text-xl px-8 py-4 font-extrabold rounded-xl bg-winner_gold text-blue-900 shadow-lg border-2 border-blue-500 mx-auto uppercase"
             >Next Round</button>
           </motion.div>
