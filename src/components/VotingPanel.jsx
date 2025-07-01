@@ -113,14 +113,16 @@ function VotingPanel() {
   }
 
   // Critical: Register vote ONCE per match, only when a vote is cast, not on "Next Match"
-  const handleVote = id => {
-    if (!voteRegistered) {
-      submitVote(tid, user.userId, tournament.currentRound, match.id, id);
-      setSelected(prev => ({ ...prev, [match.id]: id }));
-      setVoteRegistered(true);
-      setCurrentVote(id);
-    }
-  };
+const handleVote = side => {
+  // Determine which video ID is selected:
+  const votedVideoId = side === "A" ? videoA.id : videoB.id;
+  if (!voteRegistered) {
+    submitVote(tid, user.userId, tournament.currentRound, match.id, votedVideoId);
+    setSelected(prev => ({ ...prev, [match.id]: votedVideoId }));
+    setVoteRegistered(true);
+    setCurrentVote(side);
+  }
+};
 
   const handleNextMatch = () => {
     if (currentIdx < matches.length - 1) setCurrentIdx(currentIdx + 1);
