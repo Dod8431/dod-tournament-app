@@ -1,15 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { listenTournament, submitVote } from '../firebase/firestore';
 import FaceOffPanel from './FaceOffPanel';
 
-const themeClasses = {
-  classic: "bg-gradient-to-br from-blue-100 to-indigo-200",
-  retro: "bg-yellow-200 text-pink-700 font-mono",
-  meme: "bg-green-200 text-purple-900 font-bold",
-  dark: "bg-gray-900 text-white",
-  light: "bg-white text-black"
-};
+// Strong dark-violet background
+const bgClass = "bg-gradient-to-br from-[#240046] via-[#3c096c] to-[#10002b]";
+const accentText = "text-[#e0aaff]";
+const errorText = "text-[#ff6f91]";
+const borderClass = "border-4 border-[#7b2cbf]";
 
 function VotingPanel() {
   const { tid } = useParams();
@@ -19,24 +17,16 @@ function VotingPanel() {
   const [selected, setSelected] = useState({});
   const [voted, setVoted] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const navigate = useNavigate();
-  const hasRedirected = useRef(false);
 
-  // Defensive user fetch
   let user = null;
   try {
     user = JSON.parse(localStorage.getItem(`tourn_${tid}_user`));
-  } catch (e) {
-    user = null;
-  }
+  } catch (e) {}
 
   useEffect(() => {
     if (!user) {
-      if (!hasRedirected.current) {
-        hasRedirected.current = true;
-        navigate(`/tournament/${tid}/join`);
-      }
+      navigate(`/tournament/${tid}/join`);
       return;
     }
     const unsub = listenTournament(tid, (data) => {
@@ -50,58 +40,87 @@ function VotingPanel() {
     // eslint-disable-next-line
   }, [tid]);
 
-  const handleReveal = (idx, side) => {
-    setSelected(prev => ({ ...prev, [`${idx}_${side}_revealed`]: true }));
-  };
+  if (!user) {
+    return (
+      <div className={`min-h-screen flex justify-center items-center ${bgClass} ${accentText} text-xl`}>
+        Redirecting...
+      </div>
+    );
+  }
 
-  const handleVote = async (match, voteFor) => {
-    if (!match || !user) return;
-    await submitVote(tid, user.userId, tournament.currentRound, match.id, voteFor);
-    setSelected(prev => ({ ...prev, [match.id]: voteFor }));
-    if (currentIdx < matches.length - 1) {
-      setCurrentIdx(currentIdx + 1);
-    } else {
-      setVoted(true);
-    }
-  };
-
-  // BLANK/LOADING states
-  if (loading || !tournament) return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
-  if (!user) return <div className="flex justify-center items-center min-h-screen text-red-700">User not found. Please join tournament.</div>;
+  if (loading || !tournament) {
+    return (
+      <div className={`min-h-screen flex justify-center items-center ${bgClass}`}>
+        <div className={`px-8 py-6 rounded-2xl font-bold text-2xl animate-fade-in ${accentText} ${borderClass} shadow-lg`}>
+          Loading Tournament...
+        </div>
+      </div>
+    );
+  }
 
   if (!Array.isArray(matches) || matches.length === 0) {
-    return <div className="flex justify-center items-center min-h-screen text-lg">No matches available for voting in this round.</div>;
+    return (
+      <div className={`min-h-screen flex justify-center items-center ${bgClass}`}>
+        <div className={`px-8 py-6 rounded-2xl font-bold text-2xl ${accentText} ${borderClass} shadow-lg`}>
+          No matches available for voting in this round.
+        </div>
+      </div>
+    );
   }
 
-  // Recap state
-  const votedRef = useRef(false);
-  if (voted && !votedRef.current) {
-    votedRef.current = true;
+  if (voted) {
     setTimeout(() => navigate(`/tournament/${tid}/recap`), 1200);
-    return <div className="flex justify-center items-center min-h-screen text-2xl font-bold">Round submitted! Loading recap...</div>;
+    return (
+      <div className={`min-h-screen flex justify-center items-center ${bgClass}`}>
+        <div className="animate-fade-in-up px-8 py-6 rounded-2xl font-black text-3xl text-[#c77dff] border-4 border-[#9d4edd] shadow-2xl">
+          <span>Round submitted!</span>
+          <div className="text-lg font-normal mt-2 text-[#e0aaff99]">Loading recap...</div>
+        </div>
+      </div>
+    );
   }
 
-  // Defensive: handle match
   const match = matches[currentIdx];
-  if (!match) return <div className="flex justify-center items-center min-h-screen text-red-600">No match data</div>;
+  if (!match) {
+    return (
+      <div className={`min-h-screen flex justify-center items-center ${bgClass}`}>
+        <div className={`px-8 py-6 rounded-2xl font-bold text-2xl ${errorText} border-4 border-[#ff99ba]`}>
+          No match data
+        </div>
+      </div>
+    );
+  }
 
   const videoA = tournament.videos?.find?.(v => v.id === match.videoAId);
   const videoB = tournament.videos?.find?.(v => v.id === match.videoBId);
 
   if (!videoA || !videoB) {
-    return <div className="flex justify-center items-center min-h-screen text-red-600">Video data missing</div>;
+    return (
+      <div className={`min-h-screen flex justify-center items-center ${bgClass}`}>
+        <div className={`px-8 py-6 rounded-2xl font-bold text-2xl ${errorText} border-4 border-[#ff99ba]`}>
+          Video data missing
+        </div>
+      </div>
+    );
   }
 
   return (
-    <FaceOffPanel
-      videoA={videoA}
-      videoB={videoB}
-      revealedA={!!selected[`${currentIdx}_A_revealed`]}
-      revealedB={!!selected[`${currentIdx}_B_revealed`]}
-      onRevealA={() => handleReveal(currentIdx, 'A')}
-      onRevealB={() => handleReveal(currentIdx, 'B')}
-      onVote={id => handleVote(match, id)}
-    />
+    <div className={`min-h-screen w-full ${bgClass} flex items-center justify-center`}>
+      <FaceOffPanel
+        videoA={videoA}
+        videoB={videoB}
+        revealedA={!!selected[`${currentIdx}_A_revealed`]}
+        revealedB={!!selected[`${currentIdx}_B_revealed`]}
+        onRevealA={() => setSelected(prev => ({ ...prev, [`${currentIdx}_A_revealed`]: true }))}
+        onRevealB={() => setSelected(prev => ({ ...prev, [`${currentIdx}_B_revealed`]: true }))}
+        onVote={id => {
+          submitVote(tid, user.userId, tournament.currentRound, match.id, id);
+          setSelected(prev => ({ ...prev, [match.id]: id }));
+          if (currentIdx < matches.length - 1) setCurrentIdx(currentIdx + 1);
+          else setVoted(true);
+        }}
+      />
+    </div>
   );
 }
 

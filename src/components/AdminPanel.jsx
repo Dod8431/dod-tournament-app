@@ -3,12 +3,13 @@ import { useParams } from 'react-router-dom';
 import { listenTournament, advanceRound } from '../firebase/firestore';
 import BracketDisplay from './BracketDisplay';
 
+// All theme classes are now palette-aware by round (can expand as needed)
 const themeClasses = {
-  classic: "bg-gradient-to-br from-blue-100 to-indigo-200",
-  retro: "bg-yellow-200 text-pink-700 font-mono",
-  meme: "bg-green-200 text-purple-900 font-bold",
-  dark: "bg-gray-900 text-white",
-  light: "bg-white text-black"
+  classic: "bg-gradient-to-br from-[#10002b] via-[#3c096c] to-[#240046] text-white",
+  retro: "bg-gradient-to-br from-[#240046] via-[#c77dff] to-[#10002b] text-white",
+  meme: "bg-gradient-to-br from-[#10002b] via-[#a100fe] to-[#7b2cbf] text-white",
+  dark: "bg-[#10002b] text-white",
+  light: "bg-white text-[#10002b]"
 };
 
 function AdminPanel() {
@@ -20,7 +21,7 @@ function AdminPanel() {
   useEffect(() => {
     const unsub = listenTournament(tid, (data) => {
       setTournament(data);
-      setCanAdvance(true); // Always allow admin to proceed
+      setCanAdvance(true);
     });
     return () => unsub && unsub();
   }, [tid]);
@@ -51,7 +52,6 @@ function AdminPanel() {
       }
     }
     if (nextMatches.length === 0) {
-      // Tournament is complete
       const winner = tournament.videos.find(v => v.id === winners[0]);
       alert("Tournament Complete! Winner: " + (winner?.title || "Unknown Video"));
       setLoading(false);
@@ -65,21 +65,27 @@ function AdminPanel() {
     setLoading(false);
   }
 
-  if (!tournament) return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+  if (!tournament)
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-[#10002b] text-[#c77dff] animate-fade-in">
+        Loading...
+      </div>
+    );
 
-  const mainClass = `${themeClasses[tournament.theme] || themeClasses.classic} min-h-screen p-6 flex flex-col items-center`;
-
+  // Palette "block" card for admin actions
   return (
-    <div className={mainClass}>
-      <div className="bg-white p-6 rounded-2xl shadow-xl max-w-3xl w-full flex flex-col gap-6">
-        <h2 className="text-2xl font-bold mb-2">Admin Panel: {tournament.title}</h2>
-        <div className="text-md text-gray-700 mb-2">Current Round: {tournament.currentRound}</div>
+    <div className={`${themeClasses[tournament.theme] || themeClasses.classic} min-h-screen w-full p-0 flex flex-col items-stretch transition-all`}>
+      <div className="mx-auto w-full max-w-3xl p-8 my-16 rounded-2xl bg-[#240046] border-2 border-[#7b2cbf] shadow-2xl flex flex-col gap-6 animate-fade-in">
+        <h2 className="text-3xl font-black mb-2 text-[#c77dff] drop-shadow tracking-wider">Admin Panel: <span className="text-[#e0aaff]">{tournament.title}</span></h2>
+        <div className="text-lg text-[#9d4edd] font-bold mb-2">
+          Current Round: <span className="text-white">{tournament.currentRound}</span>
+        </div>
         <div>
-          <h3 className="font-semibold mb-2">Live Bracket</h3>
+          <h3 className="font-semibold mb-3 text-[#7b2cbf] text-lg">Live Bracket</h3>
           <BracketDisplay tournament={tournament} />
         </div>
         <button
-          className="btn btn-primary"
+          className={`py-4 rounded-xl bg-gradient-to-r from-[#7b2cbf] via-[#9d4edd] to-[#c77dff] text-[#10002b] font-black text-lg tracking-wide shadow-xl border-2 border-[#c77dff] hover:from-[#c77dff] hover:to-[#7b2cbf] transition-all duration-200 active:scale-95`}
           disabled={!canAdvance || loading}
           onClick={handleAdvance}
         >

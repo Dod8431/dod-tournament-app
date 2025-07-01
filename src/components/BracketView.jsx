@@ -3,12 +3,10 @@ import { useParams } from 'react-router-dom';
 import { listenTournament } from '../firebase/firestore';
 import BracketDisplay from './BracketDisplay';
 
-const themeClasses = {
-  classic: "bg-gradient-to-br from-blue-100 to-indigo-200",
-  retro: "bg-yellow-200 text-pink-700 font-mono",
-  meme: "bg-green-200 text-purple-900 font-bold",
-  dark: "bg-gray-900 text-white",
-  light: "bg-white text-black"
+// Custom palette backgrounds
+const themeBg = {
+  violet: "bg-gradient-to-br from-[#240046] via-[#3c096c] to-[#7b2cbf]",
+  dark: "bg-[#10002b]",
 };
 
 function BracketView() {
@@ -25,17 +23,29 @@ function BracketView() {
   }, [tid]);
 
   if (loading || !tournament)
-    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-[#10002b]">
+        <span className="text-[#c77dff] font-bold text-xl animate-pulse">Loading...</span>
+      </div>
+    );
 
   if (!Array.isArray(tournament.bracket) || tournament.bracket.length === 0)
-    return <div className="flex justify-center items-center min-h-screen text-lg">No bracket available.</div>;
-
-  const mainClass = `${themeClasses[tournament.theme] || themeClasses.classic} min-h-screen w-screen p-0 flex flex-col items-stretch`;
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-[#10002b]">
+        <span className="text-lg text-[#e0aaff]/70">No bracket available.</span>
+      </div>
+    );
 
   return (
-    <div className={mainClass} style={{ minHeight: "100vh", width: "100vw", padding: 0, margin: 0 }}>
-      <h2 className="text-2xl font-bold mb-6 text-center pt-8">Live Bracket</h2>
-      <BracketDisplay tournament={tournament} />
+    <div className={`${themeBg.violet} min-h-screen w-screen flex flex-col items-stretch`} style={{ minHeight: "100vh", width: "100vw" }}>
+      <div className="max-w-7xl w-full mx-auto pt-12 px-2">
+        <h2 className="text-4xl font-black tracking-tight text-center mb-8 text-[#e0aaff] drop-shadow animate-fade-in">
+          Live Bracket
+        </h2>
+        <div className="animate-fade-in">
+          <BracketDisplay tournament={tournament} />
+        </div>
+      </div>
     </div>
   );
 }
