@@ -14,13 +14,21 @@ const themeClasses = {
 function BracketView() {
   const { tid } = useParams();
   const [tournament, setTournament] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsub = listenTournament(tid, setTournament);
+    const unsub = listenTournament(tid, (data) => {
+      setTournament(data);
+      setLoading(false);
+    });
     return () => unsub && unsub();
   }, [tid]);
 
-  if (!tournament) return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+  if (loading || !tournament) return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+
+  if (!tournament.bracket || !Array.isArray(tournament.bracket) || tournament.bracket.length === 0) {
+    return <div className="flex justify-center items-center min-h-screen text-lg">No bracket available.</div>;
+  }
 
   const mainClass = `${themeClasses[tournament.theme] || themeClasses.classic} min-h-screen w-full p-0 flex flex-col items-stretch`;
 

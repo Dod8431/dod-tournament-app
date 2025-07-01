@@ -15,9 +15,17 @@ export default function App() {
       <div className="pt-16">
         <Routes>
           <Route path="/" element={<UserTournamentList />} />
-          <Route path="/my-tournaments" element={<MyTournaments />} />
+          <Route path="/my-tournaments" element={
+            localStorage.getItem("adminPanelCodeOk") === "yes"
+              ? <MyTournaments />
+              : <div className="flex min-h-screen items-center justify-center text-xl text-red-500">Not authorized</div>
+          } />
           <Route path="/admin" element={<AdminGate><AdminPanelHome /></AdminGate>} />
-          <Route path="/create" element={<CreateTournament />} />
+          <Route path="/create" element={
+            localStorage.getItem("adminPanelCodeOk") === "yes"
+              ? <CreateTournament />
+              : <div className="flex min-h-screen items-center justify-center text-xl text-red-500">Not authorized</div>
+          } />
           <Route path="/tournament/:tid/bracket" element={<BracketView />} />
         </Routes>
       </div>

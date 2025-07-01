@@ -40,14 +40,14 @@ export async function getAllActiveTournaments() {
   return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 }
 
-// Permanently delete
-export async function deleteTournament(tid) {
-  await deleteDoc(doc(db, 'tournaments', tid));
+export async function archiveTournament(tid) {
+  const tRef = doc(db, "tournaments", tid);
+  await updateDoc(tRef, { isActive: false });
 }
 
-// Archive (mark as inactive)
-export async function archiveTournament(tid) {
-  await updateDoc(doc(db, 'tournaments', tid), { isActive: false });
+export async function deleteTournament(tid) {
+  const tRef = doc(db, "tournaments", tid);
+  await deleteDoc(tRef);
 }
 
 // Get all tournaments by adminId

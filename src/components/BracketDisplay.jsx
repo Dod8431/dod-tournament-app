@@ -2,15 +2,17 @@ import React from 'react';
 
 // Minimalist SVG-style bracket visualization for unlimited rounds
 export default function BracketDisplay({ tournament }) {
-  if (!tournament?.bracket) return null;
-  const maxMatches = Math.max(...tournament.bracket.map(r => r.matches.length));
+  if (!tournament?.bracket || !Array.isArray(tournament.bracket)) return null;
+  if (!Array.isArray(tournament.videos)) return <div className="text-red-500">No videos data</div>;
+  if (tournament.bracket.length === 0) return <div className="text-gray-500">No rounds available.</div>;
+
   return (
     <div className="overflow-x-auto w-full flex justify-center pb-10">
       <div className="flex gap-8">
         {tournament.bracket.map((round, ridx) => (
           <div key={ridx} className="flex flex-col gap-4">
             <div className="font-bold text-lg text-center">Round {round.round}</div>
-            {round.matches.map((m, i) => {
+            {(round.matches || []).map((m, i) => {
               const vidA = tournament.videos.find(v => v.id === m.videoAId);
               const vidB = tournament.videos.find(v => v.id === m.videoBId);
               return (

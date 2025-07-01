@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getTournament, submitVote, listenTournament } from '../firebase/firestore';
+import { listenTournament, submitVote } from '../firebase/firestore';
 import FaceOffPanel from './FaceOffPanel';
-
 
 const themeClasses = {
   classic: "bg-gradient-to-br from-blue-100 to-indigo-200",
@@ -19,15 +18,25 @@ function VotingPanel() {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selected, setSelected] = useState({});
   const [voted, setVoted] = useState(false);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem(`tourn_${tid}_user`));
+
+  // Get user from localStorage
+  let user = null;
+  try {
+    user = JSON.parse(localStorage.getItem(`tourn_${tid}_user`));
+  } catch (e) {}
 
   useEffect(() => {
-    if (!user) navigate(`/tournament/${tid}/join`);
+    if (!user) {
+      navigate(`/tournament/${tid}/join`);
+      return;
+    }
     const unsub = listenTournament(tid, (data) => {
       setTournament(data);
+      setLoading(false);
       const round = data.currentRound;
-      const rBracket = data.bracket.find(r => r.round === round);
+      const rBracket = data.bracket?.find?.(r => r.round === round);
       setMatches(rBracket ? rBracket.matches : []);
     });
     return () => unsub && unsub();
@@ -38,6 +47,7 @@ function VotingPanel() {
   };
 
   const handleVote = async (match, voteFor) => {
+    if (!match || !user) return;
     await submitVote(tid, user.userId, tournament.currentRound, match.id, voteFor);
     setSelected(prev => ({ ...prev, [match.id]: voteFor }));
     if (currentIdx < matches.length - 1) {
@@ -47,29 +57,38 @@ function VotingPanel() {
     }
   };
 
-  if (!tournament) return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
-  if (!matches.length) return <div className="flex justify-center items-center min-h-screen">No matches yet</div>;
+  if (loading || !tournament) return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+  if (!user) return null; // navigation will handle redirect
+
+  if (!Array.isArray(matches) || matches.length === 0) {
+    return <div className="flex justify-center items-center min-h-screen text-lg">No matches available for voting in this round.</div>;
+  }
+
   if (voted) {
     setTimeout(() => navigate(`/tournament/${tid}/recap`), 1200);
     return <div className="flex justify-center items-center min-h-screen text-2xl font-bold">Round submitted! Loading recap...</div>;
   }
 
   const match = matches[currentIdx];
-  const videoA = tournament.videos.find(v => v.id === match.videoAId);
-  const videoB = tournament.videos.find(v => v.id === match.videoBId);
+  if (!match) return <div className="flex justify-center items-center min-h-screen text-red-600">No match data</div>;
 
-  const mainClass = `${themeClasses[tournament.theme] || themeClasses.classic} min-h-screen flex flex-col items-center justify-center p-4`;
+  const videoA = tournament.videos?.find?.(v => v.id === match.videoAId);
+  const videoB = tournament.videos?.find?.(v => v.id === match.videoBId);
+
+  if (!videoA || !videoB) {
+    return <div className="flex justify-center items-center min-h-screen text-red-600">Video data missing</div>;
+  }
 
   return (
     <FaceOffPanel
-  videoA={videoA}
-  videoB={videoB}
-  revealedA={!!selected[`${currentIdx}_A_revealed`]}
-  revealedB={!!selected[`${currentIdx}_B_revealed`]}
-  onRevealA={() => handleReveal(currentIdx, 'A')}
-  onRevealB={() => handleReveal(currentIdx, 'B')}
-  onVote={id => handleVote(match, id)}
-/>
+      videoA={videoA}
+      videoB={videoB}
+      revealedA={!!selected[`${currentIdx}_A_revealed`]}
+      revealedB={!!selected[`${currentIdx}_B_revealed`]}
+      onRevealA={() => handleReveal(currentIdx, 'A')}
+      onRevealB={() => handleReveal(currentIdx, 'B')}
+      onVote={id => handleVote(match, id)}
+    />
   );
 }
 
