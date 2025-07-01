@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { listenTournament, submitVote } from '../firebase/firestore';
 import FaceOffPanel from './FaceOffPanel';
@@ -19,17 +19,24 @@ function VotingPanel() {
   const [selected, setSelected] = useState({});
   const [voted, setVoted] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
+  const hasRedirected = useRef(false);
 
-  // Get user from localStorage
+  // Defensive user fetch
   let user = null;
   try {
     user = JSON.parse(localStorage.getItem(`tourn_${tid}_user`));
-  } catch (e) {}
+  } catch (e) {
+    user = null;
+  }
 
   useEffect(() => {
     if (!user) {
-      navigate(`/tournament/${tid}/join`);
+      if (!hasRedirected.current) {
+        hasRedirected.current = true;
+        navigate(`/tournament/${tid}/join`);
+      }
       return;
     }
     const unsub = listenTournament(tid, (data) => {
@@ -40,6 +47,7 @@ function VotingPanel() {
       setMatches(rBracket ? rBracket.matches : []);
     });
     return () => unsub && unsub();
+    // eslint-disable-next-line
   }, [tid]);
 
   const handleReveal = (idx, side) => {
@@ -57,18 +65,23 @@ function VotingPanel() {
     }
   };
 
+  // BLANK/LOADING states
   if (loading || !tournament) return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
-  if (!user) return null; // navigation will handle redirect
+  if (!user) return <div className="flex justify-center items-center min-h-screen text-red-700">User not found. Please join tournament.</div>;
 
   if (!Array.isArray(matches) || matches.length === 0) {
     return <div className="flex justify-center items-center min-h-screen text-lg">No matches available for voting in this round.</div>;
   }
 
-  if (voted) {
+  // Recap state
+  const votedRef = useRef(false);
+  if (voted && !votedRef.current) {
+    votedRef.current = true;
     setTimeout(() => navigate(`/tournament/${tid}/recap`), 1200);
     return <div className="flex justify-center items-center min-h-screen text-2xl font-bold">Round submitted! Loading recap...</div>;
   }
 
+  // Defensive: handle match
   const match = matches[currentIdx];
   if (!match) return <div className="flex justify-center items-center min-h-screen text-red-600">No match data</div>;
 

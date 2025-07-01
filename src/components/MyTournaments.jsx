@@ -11,13 +11,26 @@ function getLocalAdminId() {
   return id;
 }
 
+// Only allow safe string IDs
+function safeId(id) {
+  return typeof id === "string" && /^[\w-]+$/.test(id) ? id : null;
+}
+
 export default function MyTournaments() {
   const [tournaments, setTournaments] = useState([]);
   const [loading, setLoading] = useState(false);
   const adminId = getLocalAdminId();
 
   useEffect(() => {
-    getTournamentsByAdmin(adminId).then(setTournaments);
+    getTournamentsByAdmin(adminId).then(data => {
+      // Defensive: always array, log bad entries
+      if (!Array.isArray(data)) {
+        console.warn("[MyTournaments] Non-array tournament data", data);
+        setTournaments([]);
+      } else {
+        setTournaments(data);
+      }
+    });
   }, [adminId, loading]);
 
   function isClosed(t) {
@@ -30,8 +43,8 @@ export default function MyTournaments() {
   const ongoing = tournaments.filter(t => !isClosed(t));
   const closed = tournaments.filter(isClosed);
 
-  // --- NEW: ARCHIVE AND DELETE BUTTONS ---
   async function handleArchive(id) {
+    if (!safeId(id)) return;
     if (window.confirm("Archive this tournament?")) {
       setLoading(true);
       await archiveTournament(id);
@@ -40,6 +53,7 @@ export default function MyTournaments() {
   }
 
   async function handleDelete(id) {
+    if (!safeId(id)) return;
     if (window.confirm("Delete this tournament? This cannot be undone!")) {
       setLoading(true);
       await deleteTournament(id);
@@ -54,41 +68,55 @@ export default function MyTournaments() {
         <h2 className="text-xl mb-2">Ongoing</h2>
         {ongoing.length === 0 && <div className="text-gray-400 mb-2">No ongoing tournaments yet.</div>}
         <ul className="mb-6">
-          {ongoing.map(t => (
-            <li key={t.id} className="mb-2 flex items-center gap-4">
-              <a href={`/tournament/${t.id}/admin`} className="underline font-semibold">{t.title}</a>
-              <span className="ml-2 text-xs text-gray-400">
-                (Created {t.createdAt?.toDate?.().toLocaleString?.() || "unknown"})
-              </span>
-              <button
-                className="bg-yellow-700 hover:bg-yellow-600 px-3 py-1 rounded-lg text-xs ml-2"
-                onClick={() => handleArchive(t.id)}
-                disabled={loading}
-              >Archive</button>
-              <button
-                className="bg-red-700 hover:bg-red-600 px-3 py-1 rounded-lg text-xs ml-2"
-                onClick={() => handleDelete(t.id)}
-                disabled={loading}
-              >Delete</button>
-            </li>
-          ))}
+          {ongoing.map(t => {
+            const id = safeId(t.id);
+            if (!id) {
+              console.warn("Skipping invalid tournament (no id):", t);
+              return null;
+            }
+            return (
+              <li key={id} className="mb-2 flex items-center gap-4">
+                <a href={`/tournament/${id}/admin`} className="underline font-semibold">{t.title || <span className="text-red-600">Untitled</span>}</a>
+                <span className="ml-2 text-xs text-gray-400">
+                  (Created {t.createdAt?.toDate?.().toLocaleString?.() || "unknown"})
+                </span>
+                <button
+                  className="bg-yellow-700 hover:bg-yellow-600 px-3 py-1 rounded-lg text-xs ml-2"
+                  onClick={() => handleArchive(id)}
+                  disabled={loading}
+                >Archive</button>
+                <button
+                  className="bg-red-700 hover:bg-red-600 px-3 py-1 rounded-lg text-xs ml-2"
+                  onClick={() => handleDelete(id)}
+                  disabled={loading}
+                >Delete</button>
+              </li>
+            );
+          })}
         </ul>
         <h2 className="text-xl mt-6 mb-2">Closed</h2>
         {closed.length === 0 && <div className="text-gray-400 mb-2">No closed tournaments yet.</div>}
         <ul>
-          {closed.map(t => (
-            <li key={t.id} className="mb-2 flex items-center gap-4">
-              <a href={`/tournament/${t.id}/admin`} className="underline font-semibold">{t.title}</a>
-              <span className="ml-2 text-xs text-gray-400">
-                (Last active {t.createdAt?.toDate?.().toLocaleString?.() || "unknown"})
-              </span>
-              <button
-                className="bg-red-700 hover:bg-red-600 px-3 py-1 rounded-lg text-xs ml-2"
-                onClick={() => handleDelete(t.id)}
-                disabled={loading}
-              >Delete</button>
-            </li>
-          ))}
+          {closed.map(t => {
+            const id = safeId(t.id);
+            if (!id) {
+              console.warn("Skipping invalid tournament (no id):", t);
+              return null;
+            }
+            return (
+              <li key={id} className="mb-2 flex items-center gap-4">
+                <a href={`/tournament/${id}/admin`} className="underline font-semibold">{t.title || <span className="text-red-600">Untitled</span>}</a>
+                <span className="ml-2 text-xs text-gray-400">
+                  (Last active {t.createdAt?.toDate?.().toLocaleString?.() || "unknown"})
+                </span>
+                <button
+                  className="bg-red-700 hover:bg-red-600 px-3 py-1 rounded-lg text-xs ml-2"
+                  onClick={() => handleDelete(id)}
+                  disabled={loading}
+                >Delete</button>
+              </li>
+            );
+          })}
         </ul>
       </div>
       <a

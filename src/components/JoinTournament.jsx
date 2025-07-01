@@ -15,27 +15,66 @@ function JoinTournament() {
   const [tournament, setTournament] = useState(null);
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    getTournament(tid).then(setTournament);
+    if (!tid) {
+      setError("Invalid tournament ID.");
+      return;
+    }
+    getTournament(tid)
+      .then(t => {
+        if (!t) {
+          setError("Tournament not found.");
+        } else {
+          setTournament(t);
+        }
+      })
+      .catch(e => {
+        setError("Error loading tournament.");
+        console.error("getTournament error:", e);
+      });
   }, [tid]);
 
   const handleJoin = async (e) => {
     e.preventDefault();
+    if (!username.trim()) {
+      setError("Username required.");
+      return;
+    }
     setLoading(true);
-    const user = {
-      userId: crypto.randomUUID(),
-      username,
-      joinedAt: Date.now(),
-    };
-    localStorage.setItem(`tourn_${tid}_user`, JSON.stringify(user));
-    await addUserToTournament(tid, user);
-    setLoading(false);
-    navigate(`/tournament/${tid}/vote`);
+    try {
+      const user = {
+        userId: crypto.randomUUID(),
+        username,
+        joinedAt: Date.now(),
+      };
+      localStorage.setItem(`tourn_${tid}_user`, JSON.stringify(user));
+      await addUserToTournament(tid, user);
+      setLoading(false);
+      navigate(`/tournament/${tid}/vote`);
+    } catch (err) {
+      setLoading(false);
+      setError("Failed to join tournament.");
+      console.error("Join error:", err);
+    }
   };
 
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-red-100 text-red-800 p-8">
+        <div className="bg-white rounded-xl p-6 shadow-xl text-lg">
+          <div className="font-bold mb-2">Error</div>
+          <div>{error}</div>
+        </div>
+      </div>
+    );
+  }
+
   if (!tournament) return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+
+  const isClosed = tournament.isActive === false;
 
   const mainClass = `${themeClasses[tournament.theme] || themeClasses.classic} min-h-screen flex flex-col items-center justify-center p-4`;
 
@@ -43,11 +82,19 @@ function JoinTournament() {
     <div className={mainClass}>
       <div className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md flex flex-col gap-4">
         <h2 className="text-2xl font-bold mb-2">Join Tournament</h2>
-        <div className="font-semibold text-lg">{tournament.title}</div>
-        <div className="text-sm text-gray-500 mb-2">Theme: {tournament.theme}</div>
+        <div className="font-semibold text-lg">{tournament.title || <span className="text-red-500">Untitled</span>}</div>
+        <div className="text-sm text-gray-500 mb-2">Theme: {tournament.theme || "unknown"}</div>
+        {isClosed && (
+          <div className="text-red-600 font-semibold text-base mb-2">
+            This tournament is closed.
+          </div>
+        )}
         <form onSubmit={handleJoin} className="flex flex-col gap-3">
-          <input className="input input-bordered" required placeholder="Enter a username" value={username} onChange={e => setUsername(e.target.value)} />
-          <button type="submit" className="btn btn-primary" disabled={loading}>{loading ? 'Joining...' : 'Join & Vote'}</button>
+          <input className="input input-bordered" required disabled={isClosed} placeholder="Enter a username"
+            value={username} onChange={e => setUsername(e.target.value)} />
+          <button type="submit" className="btn btn-primary" disabled={loading || isClosed}>
+            {loading ? 'Joining...' : 'Join & Vote'}
+          </button>
         </form>
       </div>
     </div>

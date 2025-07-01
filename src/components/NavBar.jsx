@@ -3,7 +3,10 @@ import { Link, useLocation } from "react-router-dom";
 
 export default function NavBar() {
   const { pathname } = useLocation();
-  const isAdmin = localStorage.getItem("adminPanelCodeOk") === "yes";
+  let isAdmin = false;
+  if (typeof window !== "undefined" && window.localStorage) {
+    isAdmin = localStorage.getItem("adminPanelCodeOk") === "yes";
+  }
 
   return (
     <nav className="w-full bg-gray-900 text-white py-3 px-6 flex items-center justify-between shadow-lg fixed top-0 left-0 z-40">

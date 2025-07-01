@@ -38,11 +38,11 @@ function AdminPanel() {
     }
     let nextMatches = [];
     for (let i = 0; i < winners.length; i += 2) {
-      if (winners[i+1]) {
+      if (winners[i + 1]) {
         nextMatches.push({
           id: crypto.randomUUID(),
           videoAId: winners[i],
-          videoBId: winners[i+1],
+          videoBId: winners[i + 1],
           votesA: 0,
           votesB: 0,
           votes: [],
@@ -51,7 +51,9 @@ function AdminPanel() {
       }
     }
     if (nextMatches.length === 0) {
-      alert("Tournament Complete! Winner: " + tournament.videos.find(v => v.id === winners[0]).title);
+      // Tournament is complete
+      const winner = tournament.videos.find(v => v.id === winners[0]);
+      alert("Tournament Complete! Winner: " + (winner?.title || "Unknown Video"));
       setLoading(false);
       return;
     }
@@ -67,19 +69,22 @@ function AdminPanel() {
 
   const mainClass = `${themeClasses[tournament.theme] || themeClasses.classic} min-h-screen p-6 flex flex-col items-center`;
 
-  // Helper to get video info
-  const getVideoInfo = (id) => tournament.videos.find(v => v.id === id) || {};
-
   return (
     <div className={mainClass}>
       <div className="bg-white p-6 rounded-2xl shadow-xl max-w-3xl w-full flex flex-col gap-6">
         <h2 className="text-2xl font-bold mb-2">Admin Panel: {tournament.title}</h2>
         <div className="text-md text-gray-700 mb-2">Current Round: {tournament.currentRound}</div>
         <div>
-  <h3 className="font-semibold mb-2">Live Bracket</h3>
-  <BracketDisplay tournament={tournament} />
-</div>
-        <button className="btn btn-primary" disabled={!canAdvance || loading} onClick={handleAdvance}>{loading ? 'Advancing...' : 'Proceed to Next Round'}</button>
+          <h3 className="font-semibold mb-2">Live Bracket</h3>
+          <BracketDisplay tournament={tournament} />
+        </div>
+        <button
+          className="btn btn-primary"
+          disabled={!canAdvance || loading}
+          onClick={handleAdvance}
+        >
+          {loading ? 'Advancing...' : 'Proceed to Next Round'}
+        </button>
       </div>
     </div>
   );

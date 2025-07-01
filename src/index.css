@@ -2,16 +2,80 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Modern font & flat background for the app */
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  background: #f6f8fa;
+  color: #222;
+  min-height: 100vh;
 }
 
+a, button, .btn {
+  @apply transition-all duration-200 focus:outline-none;
+}
+
+input, select, textarea {
+  @apply rounded-lg border border-gray-300 px-4 py-2 bg-gray-100 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none transition;
+}
+
+/* Brick/block card look */
+.block-card {
+  @apply bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6 transition-all duration-200;
+}
+.block-card-flat {
+  @apply bg-gray-50 rounded-xl shadow border border-gray-200 p-4;
+}
+.block-card-dark {
+  @apply bg-gray-900 text-white rounded-2xl shadow-xl border border-gray-800 p-6;
+}
+
+/* Flat buttons */
+.btn-flat {
+  @apply px-6 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow transition;
+}
+.btn-flat-alt {
+  @apply px-6 py-2 rounded-xl bg-gray-300 hover:bg-gray-400 text-black font-bold shadow transition;
+}
+
+/* Navbar/brick links */
+.nav-link {
+  @apply px-3 py-2 rounded-lg font-semibold hover:bg-blue-100 text-gray-800 transition;
+}
+.nav-link-active {
+  @apply bg-blue-600 text-white shadow;
+}
+
+/* Animations */
 @layer utilities {
   .animate-fade-in {
-    animation: fadein 0.4s;
+    animation: fadein 0.36s cubic-bezier(.39,.575,.565,1.000);
+  }
+  .animate-fade-out {
+    animation: fadeout 0.32s cubic-bezier(.4,0,.2,1) forwards;
+  }
+  .animate-pop {
+    animation: pop-in 0.32s cubic-bezier(.44,1.54,.59,1.07);
   }
   @keyframes fadein {
-    from { opacity: 0; transform: scale(0.96);}
-    to { opacity: 1; transform: scale(1);}
+    from { opacity: 0; transform: scale(0.98);}
+    to   { opacity: 1; transform: scale(1);}
   }
+  @keyframes fadeout {
+    from { opacity: 1; transform: scale(1);}
+    to   { opacity: 0; transform: scale(1.02);}
+  }
+  @keyframes pop-in {
+    0% { opacity: 0; transform: scale(0.80);}
+    80% { opacity: 1; transform: scale(1.05);}
+    100% { opacity: 1; transform: scale(1);}
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  background: #e3e7ea;
+}
+::-webkit-scrollbar-thumb {
+  background: #c3cbd6;
+  border-radius: 4px;
 }

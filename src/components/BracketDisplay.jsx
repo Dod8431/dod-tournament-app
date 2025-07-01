@@ -1,6 +1,5 @@
 import React from 'react';
 
-// Minimalist SVG-style bracket visualization for unlimited rounds
 export default function BracketDisplay({ tournament }) {
   if (!tournament?.bracket || !Array.isArray(tournament.bracket)) return null;
   if (!Array.isArray(tournament.videos)) return <div className="text-red-500">No videos data</div>;
@@ -22,7 +21,11 @@ export default function BracketDisplay({ tournament }) {
                     <span className="text-gray-400 text-xs">vs</span>
                     <span className="font-bold text-pink-700 text-center text-base">{vidB?.title || 'B'}</span>
                   </div>
-                  <div className="text-xs text-gray-500 mt-2">Votes A: {(tournament.votes||[]).filter(v=>v.matchId===m.id&&v.votedFor===m.videoAId).length} | Votes B: {(tournament.votes||[]).filter(v=>v.matchId===m.id&&v.votedFor===m.videoBId).length}</div>
+                  <div className="text-xs text-gray-500 mt-2">
+                    Votes A: {(tournament.votes || []).filter(v => v.matchId === m.id && v.votedFor === m.videoAId).length}
+                    {" | "}
+                    Votes B: {(tournament.votes || []).filter(v => v.matchId === m.id && v.votedFor === m.videoBId).length}
+                  </div>
                 </div>
               );
             })}

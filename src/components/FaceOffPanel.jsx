@@ -1,4 +1,3 @@
-// src/components/FaceOffPanel.jsx
 import React from "react";
 
 export default function FaceOffPanel({
@@ -7,7 +6,37 @@ export default function FaceOffPanel({
   onRevealA, onRevealB,
   onVote
 }) {
-  // Split background, sharp VS, big videos
+  // Defensive: guard against missing data
+  if (!videoA || !videoB) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black text-white text-2xl font-bold">
+        <div>
+          <div>❌ Cannot load face-off match.</div>
+          <div className="text-base font-mono mt-2">
+            {!videoA && "Left video missing. "}
+            {!videoB && "Right video missing."}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function isValidId(id) {
+    return typeof id === "string" && /^[\w-]{11,}$/.test(id);
+  }
+
+  // Both videos must have a valid YouTube id
+  if (!isValidId(videoA.ytId) || !isValidId(videoB.ytId)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black text-red-400 text-2xl font-bold">
+        <div>
+          <div>⚠️ Invalid YouTube video ID</div>
+          <div className="text-base mt-2">A: {videoA?.ytId || "N/A"}, B: {videoB?.ytId || "N/A"}</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-center bg-black relative overflow-hidden">
       {/* Blue/Red background split */}

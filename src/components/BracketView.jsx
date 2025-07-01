@@ -24,13 +24,13 @@ function BracketView() {
     return () => unsub && unsub();
   }, [tid]);
 
-  if (loading || !tournament) return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+  if (loading || !tournament)
+    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
 
-  if (!tournament.bracket || !Array.isArray(tournament.bracket) || tournament.bracket.length === 0) {
+  if (!Array.isArray(tournament.bracket) || tournament.bracket.length === 0)
     return <div className="flex justify-center items-center min-h-screen text-lg">No bracket available.</div>;
-  }
 
-  const mainClass = `${themeClasses[tournament.theme] || themeClasses.classic} min-h-screen w-full p-0 flex flex-col items-stretch`;
+  const mainClass = `${themeClasses[tournament.theme] || themeClasses.classic} min-h-screen w-screen p-0 flex flex-col items-stretch`;
 
   return (
     <div className={mainClass} style={{ minHeight: "100vh", width: "100vw", padding: 0, margin: 0 }}>
