@@ -7,12 +7,14 @@ import AdminPanelHome from "./components/AdminPanelHome";
 import MyTournaments from "./components/MyTournaments";
 import CreateTournament from "./components/CreateTournament";
 import BracketView from "./components/BracketView";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 export default function App() {
   return (
     <Router>
       <NavBar />
       <div className="pt-16">
+        <ErrorBoundary>
         <Routes>
           <Route path="/" element={<UserTournamentList />} />
           <Route path="/my-tournaments" element={
@@ -28,7 +30,9 @@ export default function App() {
           } />
           <Route path="/tournament/:tid/bracket" element={<BracketView />} />
         </Routes>
+        </ErrorBoundary>
       </div>
     </Router>
+    
   );
 }
