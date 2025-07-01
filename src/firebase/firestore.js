@@ -34,6 +34,12 @@ export async function getTournamentWithId(tid) {
   return { id: tid, ...snap.data() };
 }
 
+export async function getAllActiveTournaments() {
+  const q = query(collection(db, 'tournaments'), where('isActive', '==', true));
+  const snap = await getDocs(q);
+  return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+}
+
 // Permanently delete
 export async function deleteTournament(tid) {
   await deleteDoc(doc(db, 'tournaments', tid));
