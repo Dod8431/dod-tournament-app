@@ -1,26 +1,26 @@
-// Main entrypoint: src/App.jsx
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import CreateTournament from './components/CreateTournament';
-import JoinTournament from './components/JoinTournament';
-import VotingPanel from './components/VotingPanel';
-import RecapScreen from './components/RecapScreen';
-import BracketView from './components/BracketView';
-import AdminPanel from './components/AdminPanel';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import NavBar from "./components/NavBar";
+import UserTournamentList from "./components/UserTournamentList";
+import AdminGate from "./components/AdminGate";
+import AdminPanelHome from "./components/AdminPanelHome";
+import MyTournaments from "./components/MyTournaments";
+import CreateTournament from "./components/CreateTournament";
+import BracketView from "./components/BracketView";
 
-function App() {
+export default function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<CreateTournament />} />
-        <Route path="/tournament/:tid/join" element={<JoinTournament />} />
-        <Route path="/tournament/:tid/vote" element={<VotingPanel />} />
-        <Route path="/tournament/:tid/recap" element={<RecapScreen />} />
-        <Route path="/tournament/:tid/bracket" element={<BracketView />} />
-        <Route path="/tournament/:tid/admin" element={<AdminPanel />} />
-      </Routes>
+      <NavBar />
+      <div className="pt-16">
+        <Routes>
+          <Route path="/" element={<UserTournamentList />} />
+          <Route path="/my-tournaments" element={<MyTournaments />} />
+          <Route path="/admin" element={<AdminGate><AdminPanelHome /></AdminGate>} />
+          <Route path="/create" element={<CreateTournament />} />
+          <Route path="/tournament/:tid/bracket" element={<BracketView />} />
+        </Routes>
+      </div>
     </Router>
   );
 }
-
-export default App;
