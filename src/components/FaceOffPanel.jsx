@@ -79,6 +79,12 @@ export default function FaceOffPanel({
     />
   ) : null;
 
+  // --- SHARED style for video panel to avoid layout shifts ---
+  const videoBlockStyle = "w-[460px] max-w-[95vw] flex flex-col items-center";
+  const videoFrameBox = "w-[460px] h-[260px] max-w-full bg-black rounded-2xl shadow-2xl border-4 relative overflow-hidden flex items-center";
+  const titleBox = "mt-4 w-full px-2 h-[2.7em] flex items-center justify-center text-lg font-bold text-center text-white truncate overflow-hidden whitespace-nowrap";
+  // For mobile, consider using `whitespace-normal` and limiting lines
+
   return (
     <div className="battle-bg relative min-h-screen flex flex-col items-center justify-center">
       <div className="faceoff-crack">
@@ -87,9 +93,9 @@ export default function FaceOffPanel({
       {explosion}
       {VS}
 
-      <div className="relative z-10 flex flex-row w-full max-w-7xl items-center justify-center gap-20 pt-24 pb-16">
+      <div className="relative z-10 flex flex-row w-full max-w-7xl items-center justify-center gap-20 pt-24 pb-16 flex-wrap">
         {/* Blue Side */}
-        <div className="flex-1 flex flex-col items-center justify-center">
+        <div className={`flex-1 flex flex-col items-center justify-center ${videoBlockStyle}`}>
           <div className="healthbar-outer mb-4" style={{ width: '300px' }}>
             <div
               className="healthbar-inner healthbar-blue"
@@ -108,36 +114,42 @@ export default function FaceOffPanel({
               Reveal
             </motion.button>
           ) : (
-            <motion.div
-              initial={{ x: -120, scale: 0.94, opacity: 0 }}
-              animate={{
-                x: collide ? 0 : -60,
-                scale: votedFor === "A" ? 1.08 : votedFor === "B" ? 1 : 1,
-                opacity: 1,
-                filter: votedFor === "B" ? "grayscale(100%)" : "none"
-              }}
-              transition={{ type: "spring", stiffness: 250, damping: 16 }}
-              className={`w-[460px] h-[260px] bg-black rounded-2xl shadow-2xl border-4 border-blue-500 relative overflow-hidden flex items-center ${collide && "battle-border-blue"}`}
-            >
-              <iframe
-                width="100%" height="100%"
-                src={`https://www.youtube.com/embed/${videoA.ytId}`}
-                title={videoA.title}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="rounded-2xl"
-              />
-            </motion.div>
+            <>
+              <motion.div
+                initial={{ x: -120, scale: 0.94, opacity: 0 }}
+                animate={{
+                  x: collide ? 0 : -60,
+                  scale: votedFor === "A" ? 1.08 : votedFor === "B" ? 1 : 1,
+                  opacity: 1,
+                  filter: votedFor === "B" ? "grayscale(100%)" : "none"
+                }}
+                transition={{ type: "spring", stiffness: 250, damping: 16 }}
+                className={`${videoFrameBox} border-blue-500 ${collide && "battle-border-blue"}`}
+              >
+                <iframe
+                  width="100%" height="100%"
+                  src={`https://www.youtube.com/embed/${videoA.ytId}`}
+                  title={videoA.title}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="rounded-2xl"
+                />
+              </motion.div>
+              {/* Title: Only shown when revealedA */}
+              <div
+                className={titleBox}
+                title={videoA.title} // Tooltip for overflowed title
+                style={{ pointerEvents: "auto" }}
+              >
+                {videoA.title}
+              </div>
+            </>
           )}
-          {/* Title Below iFrame */}
-          <div className="mt-4 w-[460px] text-lg font-bold text-center text-white">
-            {videoA.title}
-          </div>
         </div>
 
         {/* Red Side */}
-        <div className="flex-1 flex flex-col items-center justify-center">
+        <div className={`flex-1 flex flex-col items-center justify-center ${videoBlockStyle}`}>
           <div className="healthbar-outer mb-4" style={{ width: '300px' }}>
             <div
               className="healthbar-inner healthbar-red"
@@ -156,32 +168,38 @@ export default function FaceOffPanel({
               Reveal
             </motion.button>
           ) : (
-            <motion.div
-              initial={{ x: 120, scale: 0.94, opacity: 0 }}
-              animate={{
-                x: collide ? 0 : 60,
-                scale: votedFor === "B" ? 1.08 : votedFor === "A" ? 1 : 1,
-                opacity: 1,
-                filter: votedFor === "A" ? "grayscale(100%)" : "none"
-              }}
-              transition={{ type: "spring", stiffness: 250, damping: 16 }}
-              className={`w-[460px] h-[260px] bg-black rounded-2xl shadow-2xl border-4 border-red-500 relative overflow-hidden flex items-center ${collide && "battle-border-red"}`}
-            >
-              <iframe
-                width="100%" height="100%"
-                src={`https://www.youtube.com/embed/${videoB.ytId}`}
+            <>
+              <motion.div
+                initial={{ x: 120, scale: 0.94, opacity: 0 }}
+                animate={{
+                  x: collide ? 0 : 60,
+                  scale: votedFor === "B" ? 1.08 : votedFor === "A" ? 1 : 1,
+                  opacity: 1,
+                  filter: votedFor === "A" ? "grayscale(100%)" : "none"
+                }}
+                transition={{ type: "spring", stiffness: 250, damping: 16 }}
+                className={`${videoFrameBox} border-red-500 ${collide && "battle-border-red"}`}
+              >
+                <iframe
+                  width="100%" height="100%"
+                  src={`https://www.youtube.com/embed/${videoB.ytId}`}
+                  title={videoB.title}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="rounded-2xl"
+                />
+              </motion.div>
+              {/* Title: Only shown when revealedB */}
+              <div
+                className={titleBox}
                 title={videoB.title}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="rounded-2xl"
-              />
-            </motion.div>
+                style={{ pointerEvents: "auto" }}
+              >
+                {videoB.title}
+              </div>
+            </>
           )}
-          {/* Title Below iFrame for Red Side */}
-          <div className="mt-4 w-[460px] text-lg font-bold text-center text-white">
-            {videoB.title}
-          </div>
         </div>
       </div>
 
