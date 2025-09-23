@@ -4,7 +4,6 @@ import { listenTournament, submitVote } from '../firebase/firestore';
 import FaceOffPanel from './FaceOffPanel';
 import { saveUserProgress, loadUserProgress } from "../firebase/firestore";
 
-// Use only gold/dark theme utility classes
 const bgClass = "bg-[var(--main-bg)]";
 const accentText = "text-[var(--main-gold)]";
 const errorText = "text-[#ff6f91]";
@@ -27,13 +26,14 @@ function VotingPanel() {
     user = JSON.parse(localStorage.getItem(`tourn_${tid}_user`));
   } catch (e) {}
 
-  // Charger tournoi + progression sauvegardée
   useEffect(() => {
     if (!user) {
       navigate(`/tournament/${tid}/join`);
       return;
     }
     const unsub = listenTournament(tid, async (data) => {
+      console.log(">>> Tournament data loaded", data);
+
       setTournament(data);
       setLoading(false);
 
@@ -43,7 +43,10 @@ function VotingPanel() {
 
       // Charger progression utilisateur
       const progress = await loadUserProgress(user.userId, tid);
-      if (progress && progress.currentRound === round) {
+      console.log(">>> Loaded progress from Firestore", progress);
+
+      if (progress) {
+        console.log(">>> Restoring state from progress", progress);
         setCurrentIdx(progress.currentMatch || 0);
         setSelected(progress.selected || {});
       }
@@ -52,7 +55,6 @@ function VotingPanel() {
     // eslint-disable-next-line
   }, [tid]);
 
-  // Reset état vote quand on change de match
   useEffect(() => {
     setVoteRegistered(false);
     setCurrentVote(null);
@@ -125,13 +127,13 @@ function VotingPanel() {
   const handleVote = side => {
     const votedVideoId = side === "A" ? videoA.id : videoB.id;
     if (!voteRegistered) {
+      console.log(">>> Submitting vote", { matchId: match.id, votedVideoId });
       submitVote(tid, user.userId, tournament.currentRound, match.id, votedVideoId);
       const newSelected = { ...selected, [match.id]: votedVideoId };
       setSelected(newSelected);
       setVoteRegistered(true);
       setCurrentVote(side);
 
-      // Sauvegarde progression après le vote
       saveUserProgress(user.userId, tid, {
         currentRound: tournament.currentRound,
         currentMatch: currentIdx,
@@ -143,15 +145,15 @@ function VotingPanel() {
   const handleNextMatch = () => {
     if (currentIdx < matches.length - 1) {
       const newIdx = currentIdx + 1;
+      console.log(">>> Moving to next match", newIdx);
       setCurrentIdx(newIdx);
-
-      // Sauvegarde progression quand on change de match
       saveUserProgress(user.userId, tid, {
         currentRound: tournament.currentRound,
         currentMatch: newIdx,
         selected
       });
     } else {
+      console.log(">>> All matches done, submitting round");
       setVoted(true);
     }
   };
@@ -166,6 +168,7 @@ function VotingPanel() {
         onRevealA={() => {
           const newSelected = { ...selected, [`${currentIdx}_A_revealed`]: true };
           setSelected(newSelected);
+          console.log(">>> Revealed A", newSelected);
           saveUserProgress(user.userId, tid, {
             currentRound: tournament.currentRound,
             currentMatch: currentIdx,
@@ -175,6 +178,7 @@ function VotingPanel() {
         onRevealB={() => {
           const newSelected = { ...selected, [`${currentIdx}_B_revealed`]: true };
           setSelected(newSelected);
+          console.log(">>> Revealed B", newSelected);
           saveUserProgress(user.userId, tid, {
             currentRound: tournament.currentRound,
             currentMatch: currentIdx,
