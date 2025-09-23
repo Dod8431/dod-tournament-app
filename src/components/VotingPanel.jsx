@@ -160,36 +160,41 @@ function VotingPanel() {
 
   return (
     <div className={`min-h-screen w-full ${bgClass} flex items-center justify-center`}>
-      <FaceOffPanel
-        videoA={videoA}
-        videoB={videoB}
-        revealedA={!!selected[`${currentIdx}_A_revealed`]}
-        revealedB={!!selected[`${currentIdx}_B_revealed`]}
-        onRevealA={() => {
-          const newSelected = { ...selected, [`${currentIdx}_A_revealed`]: true };
-          setSelected(newSelected);
-          console.log(">>> Revealed A", newSelected);
-          saveUserProgress(user.userId, tid, {
-            currentRound: tournament.currentRound,
-            currentMatch: currentIdx,
-            selected: newSelected
-          });
-        }}
-        onRevealB={() => {
-          const newSelected = { ...selected, [`${currentIdx}_B_revealed`]: true };
-          setSelected(newSelected);
-          console.log(">>> Revealed B", newSelected);
-          saveUserProgress(user.userId, tid, {
-            currentRound: tournament.currentRound,
-            currentMatch: currentIdx,
-            selected: newSelected
-          });
-        }}
-        onVote={handleVote}
-        voteRegistered={voteRegistered}
-        votedFor={currentVote}
-        onNextMatch={handleNextMatch}
-      />
+     <FaceOffPanel
+  videoA={videoA}
+  videoB={videoB}
+  revealedA={!!selected[`${currentIdx}_A_revealed`]}
+  revealedB={!!selected[`${currentIdx}_B_revealed`]}
+  onRevealA={() => {
+    const newSelected = { ...selected, [`${currentIdx}_A_revealed`]: true };
+    setSelected(newSelected);
+    saveUserProgress(user.userId, tid, {
+      currentRound: tournament.currentRound,
+      currentMatch: currentIdx,
+      selected: newSelected
+    });
+  }}
+  onRevealB={() => {
+    const newSelected = { ...selected, [`${currentIdx}_B_revealed`]: true };
+    setSelected(newSelected);
+    saveUserProgress(user.userId, tid, {
+      currentRound: tournament.currentRound,
+      currentMatch: currentIdx,
+      selected: newSelected
+    });
+  }}
+  onVote={handleVote}
+  voteRegistered={voteRegistered}
+  votedFor={currentVote}
+  onNextMatch={handleNextMatch}
+  // 👇 nouvelle prop
+  progressIndicator={
+    <div className="mt-4 text-center font-bold text-[var(--main-gold)]">
+      Round {tournament.currentRound} – Match {currentIdx + 1} / {matches.length}
+    </div>
+  }
+/>
+
     </div>
   );
 }

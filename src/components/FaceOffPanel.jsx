@@ -22,7 +22,7 @@ export default function FaceOffPanel({
   onVote,
   voteRegistered,
   votedFor,
-  onNextMatch
+  onNextMatch, progressIndicator
 }) {
   const [collide, setCollide] = useState(false);
   const [flash, setFlash] = useState(false);
@@ -254,6 +254,8 @@ export default function FaceOffPanel({
           </motion.div>
         )}
       </AnimatePresence>
+      {progressIndicator && progressIndicator}
+
     </div>
   );
 }
