@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { listenTournament, submitVote } from '../firebase/firestore';
 import FaceOffPanel from './FaceOffPanel';
+import { saveUserProgress, loadUserProgress } from "../firebase/firestore";
 
 // Use only gold/dark theme utility classes
 const bgClass = "bg-[var(--main-bg)]";
@@ -26,22 +27,32 @@ function VotingPanel() {
     user = JSON.parse(localStorage.getItem(`tourn_${tid}_user`));
   } catch (e) {}
 
+  // Charger tournoi + progression sauvegardée
   useEffect(() => {
     if (!user) {
       navigate(`/tournament/${tid}/join`);
       return;
     }
-    const unsub = listenTournament(tid, (data) => {
+    const unsub = listenTournament(tid, async (data) => {
       setTournament(data);
       setLoading(false);
+
       const round = data.currentRound;
       const rBracket = data.bracket?.find?.(r => r.round === round);
       setMatches(rBracket ? rBracket.matches : []);
+
+      // Charger progression utilisateur
+      const progress = await loadUserProgress(user.userId, tid);
+      if (progress && progress.currentRound === round) {
+        setCurrentIdx(progress.currentMatch || 0);
+        setSelected(progress.selected || {});
+      }
     });
     return () => unsub && unsub();
     // eslint-disable-next-line
   }, [tid]);
 
+  // Reset état vote quand on change de match
   useEffect(() => {
     setVoteRegistered(false);
     setCurrentVote(null);
@@ -115,15 +126,34 @@ function VotingPanel() {
     const votedVideoId = side === "A" ? videoA.id : videoB.id;
     if (!voteRegistered) {
       submitVote(tid, user.userId, tournament.currentRound, match.id, votedVideoId);
-      setSelected(prev => ({ ...prev, [match.id]: votedVideoId }));
+      const newSelected = { ...selected, [match.id]: votedVideoId };
+      setSelected(newSelected);
       setVoteRegistered(true);
       setCurrentVote(side);
+
+      // Sauvegarde progression après le vote
+      saveUserProgress(user.userId, tid, {
+        currentRound: tournament.currentRound,
+        currentMatch: currentIdx,
+        selected: newSelected
+      });
     }
   };
 
   const handleNextMatch = () => {
-    if (currentIdx < matches.length - 1) setCurrentIdx(currentIdx + 1);
-    else setVoted(true);
+    if (currentIdx < matches.length - 1) {
+      const newIdx = currentIdx + 1;
+      setCurrentIdx(newIdx);
+
+      // Sauvegarde progression quand on change de match
+      saveUserProgress(user.userId, tid, {
+        currentRound: tournament.currentRound,
+        currentMatch: newIdx,
+        selected
+      });
+    } else {
+      setVoted(true);
+    }
   };
 
   return (
@@ -133,8 +163,24 @@ function VotingPanel() {
         videoB={videoB}
         revealedA={!!selected[`${currentIdx}_A_revealed`]}
         revealedB={!!selected[`${currentIdx}_B_revealed`]}
-        onRevealA={() => setSelected(prev => ({ ...prev, [`${currentIdx}_A_revealed`]: true }))}
-        onRevealB={() => setSelected(prev => ({ ...prev, [`${currentIdx}_B_revealed`]: true }))}
+        onRevealA={() => {
+          const newSelected = { ...selected, [`${currentIdx}_A_revealed`]: true };
+          setSelected(newSelected);
+          saveUserProgress(user.userId, tid, {
+            currentRound: tournament.currentRound,
+            currentMatch: currentIdx,
+            selected: newSelected
+          });
+        }}
+        onRevealB={() => {
+          const newSelected = { ...selected, [`${currentIdx}_B_revealed`]: true };
+          setSelected(newSelected);
+          saveUserProgress(user.userId, tid, {
+            currentRound: tournament.currentRound,
+            currentMatch: currentIdx,
+            selected: newSelected
+          });
+        }}
         onVote={handleVote}
         voteRegistered={voteRegistered}
         votedFor={currentVote}

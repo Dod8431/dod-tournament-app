@@ -10,7 +10,18 @@ function JoinTournament() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  // Vérifie si l'utilisateur est déjà stocké (reprend automatiquement)
   useEffect(() => {
+    try {
+      const existingUser = JSON.parse(localStorage.getItem(`tourn_${tid}_user`));
+      if (existingUser) {
+        navigate(`/tournament/${tid}/vote`);
+        return;
+      }
+    } catch (e) {
+      console.error("Error parsing stored user:", e);
+    }
+
     if (!tid) {
       setError("Invalid tournament ID.");
       return;
@@ -27,7 +38,7 @@ function JoinTournament() {
         setError("Error loading tournament.");
         console.error("getTournament error:", e);
       });
-  }, [tid]);
+  }, [tid, navigate]);
 
   const handleJoin = async (e) => {
     e.preventDefault();

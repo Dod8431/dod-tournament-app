@@ -105,3 +105,23 @@ export async function checkAdminPin(tid, pin) {
   const data = snap.data();
   return data?.adminPin === pin;
 }
+
+export async function saveUserProgress(userId, tournamentId, progress) {
+  try {
+    const ref = doc(db, "progress", `${userId}_${tournamentId}`);
+    await setDoc(ref, { userId, tournamentId, ...progress }, { merge: true });
+  } catch (err) {
+    console.error("Erreur saveUserProgress:", err);
+  }
+}
+
+export async function loadUserProgress(userId, tournamentId) {
+  try {
+    const ref = doc(db, "progress", `${userId}_${tournamentId}`);
+    const snap = await getDoc(ref);
+    return snap.exists() ? snap.data() : null;
+  } catch (err) {
+    console.error("Erreur loadUserProgress:", err);
+    return null;
+  }
+}
