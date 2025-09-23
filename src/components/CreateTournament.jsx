@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { createTournament } from '../firebase/firestore';
 import { v4 as uuidv4 } from 'uuid';
 import { fetchYouTubeTitle } from '../utils/youtube';
+import Papa from "papaparse"; // 👈 ajout
 
 function getLocalAdminId() {
   let id = localStorage.getItem("adminId");
@@ -44,6 +45,27 @@ function CreateTournament() {
     setVideos(copy);
   };
 
+  // 👇 Nouveau handler CSV
+  const handleCSVUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    Papa.parse(file, {
+      header: false,
+      skipEmptyLines: true,
+      complete: (results) => {
+        const parsedVideos = results.data
+          .flat()
+          .map((url) => ({ ytUrl: url.trim(), ytId: '', title: '' }))
+          .filter(v => v.ytUrl.length > 0);
+
+        setVideos(parsedVideos);
+        setVideoCount(parsedVideos.length);
+        console.log(">>> CSV importé", parsedVideos);
+      },
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErr('');
@@ -53,17 +75,14 @@ function CreateTournament() {
     }
     setLoading(true);
     try {
-      // Process videos (extract IDs, titles, etc.)
       let vids = await Promise.all(videos.map(async (v) => {
         let ytId = extractYouTubeID(v.ytUrl);
         let title = await fetchYouTubeTitle(ytId);
         return { ytUrl: v.ytUrl, ytId, title, id: uuidv4() };
       }));
 
-      // Randomize video order
       vids = vids.sort(() => Math.random() - 0.5);
 
-      // Create matches
       const matches = [];
       for (let i = 0; i < vids.length; i += 2) {
         matches.push({
@@ -78,7 +97,6 @@ function CreateTournament() {
       }
       const bracket = [{ round: 1, matches }];
 
-      // Create tournament
       const tournamentId = await createTournament({
         title, theme, adminId: localAdminId, adminPin: pin, videos: vids, bracket
       });
@@ -86,12 +104,12 @@ function CreateTournament() {
       setLoading(false);
       navigate(`/tournament/${tournamentId}/admin`);
     } catch (error) {
+      console.error(error);
       setErr("Error creating tournament. Check YouTube links.");
       setLoading(false);
     }
   };
 
-  // Palette-aware theme preview (these can be updated if you want only gold/dark variants)
   const themeDemo = {
     classic: "bg-gradient-to-br from-[var(--main-dark)] to-[var(--main-gold-dark)] border-[var(--main-gold-dark)]",
     retro: "bg-gradient-to-br from-[#3c096c] to-[#--main-bg] border-[#--main-bg]",
@@ -101,15 +119,10 @@ function CreateTournament() {
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-[var(--main-bg)] to-[var(--main-dark)]"
-    >
+    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-[var(--main-bg)] to-[var(--main-dark)]">
       <form
         className="w-full max-w-lg flex flex-col gap-6 shadow-2xl p-8 rounded-3xl bg-[var(--main-dark)] border-2.5 border-[var(--main-gold)] text-[var(--main-gold)]"
-        style={{
-          boxShadow: "0 6px 40px 0 var(--main-gold-dark)",
-          backdropFilter: "blur(8px)"
-        }}
+        style={{ boxShadow: "0 6px 40px 0 var(--main-gold-dark)", backdropFilter: "blur(8px)" }}
         onSubmit={handleSubmit}
       >
         <h2 className="text-3xl font-black tracking-tight text-center mb-1 text-[var(--main-gold)] drop-shadow animate-fade-in">
@@ -125,6 +138,7 @@ function CreateTournament() {
             {err}
           </div>
         )}
+
         <input
           value={title}
           onChange={e => setTitle(e.target.value)}
@@ -132,6 +146,21 @@ function CreateTournament() {
           placeholder="Tournament Title"
           className="rounded-xl px-4 py-3 text-base bg-[var(--main-bg)] border border-[var(--main-gold-dark)] focus:ring-2 focus:ring-[var(--main-gold)] outline-none transition text-[var(--main-gold)]"
         />
+
+        {/* 👇 Nouveau champ upload CSV */}
+        <div className="flex flex-col gap-2">
+          <label className="font-semibold">Import YouTube Links (CSV):</label>
+          <input
+            type="file"
+            accept=".csv"
+            onChange={handleCSVUpload}
+            className="rounded-xl px-4 py-2 bg-[var(--main-bg)] border border-[var(--main-gold-dark)] text-[var(--main-gold)]"
+          />
+          {videos.length > 0 && (
+            <span className="text-sm text-[var(--main-gold-dark)]">{videos.length} vidéos importées</span>
+          )}
+        </div>
+
         <div className="flex flex-col sm:flex-row gap-2">
           <label className="font-semibold self-center w-32">Theme:</label>
           <select
@@ -146,6 +175,7 @@ function CreateTournament() {
             <option value="light">Light</option>
           </select>
         </div>
+
         <div className="flex flex-col sm:flex-row gap-2">
           <label className="font-semibold self-center w-32"># of Videos:</label>
           <select
@@ -158,6 +188,8 @@ function CreateTournament() {
             ))}
           </select>
         </div>
+
+        {/* Liste manuelle (toujours dispo si pas de CSV) */}
         <div className="max-h-72 overflow-y-auto flex flex-col gap-2 mt-2">
           {videos.map((v, idx) => (
             <input
@@ -172,6 +204,7 @@ function CreateTournament() {
             />
           ))}
         </div>
+
         <button
           type="submit"
           className="rounded-2xl px-6 py-3 mt-2 font-bold tracking-wide text-lg shadow bg-[var(--main-gold)] hover:bg-[var(--main-gold-dark)] text-[var(--main-dark)] transition-all duration-300 ease-out focus:ring-2 focus:ring-[var(--main-gold)]"
