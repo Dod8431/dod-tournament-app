@@ -1,16 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { listenTournament } from '../firebase/firestore';
-import BracketDisplay from './BracketDisplay';
-import { advanceRound, crownWinner } from '../firebase/firestore'; // Adjusted import path
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { listenTournament, advanceRound, crownWinner } from "../firebase/firestore";
+import BracketDisplay from "./BracketDisplay";
 
-// Custom theme background
-const themeBg = {
-  violet: "bg-gradient-to-br from-[var(--main-dark)] via-[var(--main-gold-dark)] to-[var(--main-gold)]",
-  dark: "bg-[var(--main-bg)]",
-};
-
-function AdminPanel() {
+export default function AdminPanel() {
   const { tid } = useParams();
   const [tournament, setTournament] = useState(null);
   const [winner, setWinner] = useState(null);
@@ -26,16 +19,33 @@ function AdminPanel() {
   }, [tid]);
 
   async function handleAdvance() {
+    if (!tournament) return;
     setLoading(true);
     const currentRound = tournament.currentRound;
-    const thisRound = tournament.bracket.find(r => r.round === currentRound);
+    const thisRound = tournament.bracket.find((r) => r.round === currentRound);
+
     let winners = [];
     for (const match of thisRound.matches) {
-      const votesA = (tournament.votes || []).filter(v => v.matchId === match.id && v.votedFor === match.videoAId).length;
-      const votesB = (tournament.votes || []).filter(v => v.matchId === match.id && v.votedFor === match.videoBId).length;
+      const votesA = (tournament.votes || []).filter(
+        (v) => v.matchId === match.id && v.votedFor === match.videoAId
+      ).length;
+      const votesB = (tournament.votes || []).filter(
+        (v) => v.matchId === match.id && v.votedFor === match.videoBId
+      ).length;
       const winnerId = votesA >= votesB ? match.videoAId : match.videoBId;
       winners.push(winnerId);
     }
+
+    // S'il reste un seul gagnant → couronne le champion
+    if (winners.length === 1) {
+      const finalWinner = tournament.videos.find((v) => v.id === winners[0]);
+      await crownWinner(tid, finalWinner?.title || "Unknown Video");
+      setWinner(finalWinner?.title || "Unknown Video");
+      setLoading(false);
+      return;
+    }
+
+    // Génère le prochain tour
     let nextMatches = [];
     for (let i = 0; i < winners.length; i += 2) {
       if (winners[i + 1]) {
@@ -46,65 +56,82 @@ function AdminPanel() {
           votesA: 0,
           votesB: 0,
           votes: [],
-          round: currentRound + 1
+          round: currentRound + 1,
         });
       }
     }
-    if (nextMatches.length === 0) {
-      const finalWinner = tournament.videos.find(v => v.id === winners[0]);
-      // Crown winner
-      await crownWinner(tid, finalWinner?.title || "Unknown Video");
-      setWinner(finalWinner?.title || "Unknown Video");
-      setLoading(false);
-      return;
-    }
+
     const newBracket = [
       ...tournament.bracket,
-      { round: currentRound + 1, matches: nextMatches }
+      { round: currentRound + 1, matches: nextMatches },
     ];
     await advanceRound(tid, newBracket, currentRound + 1);
     setLoading(false);
   }
 
-  if (!tournament)
+  if (!tournament) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-[var(--main-bg)] text-[var(--main-gold)] animate-fade-in">
-        Loading...
+      <div className="min-h-screen flex justify-center items-center bg-[var(--bg)] text-[var(--gold)] animate-fade-in">
+        Loading Tournament…
       </div>
     );
+  }
 
   return (
-    <div className={`${themeBg.violet} min-h-screen w-full flex flex-col items-stretch`}>
-      <div className="flex justify-center items-center w-full min-h-screen">
-        <div className="mx-auto w-full max-w-7xl p-8 my-16 rounded-2xl bg-[var(--main-dark)] border-2 border-[var(--main-gold-dark)] shadow-2xl flex flex-col gap-6 animate-fade-in">
-          <h2 className="text-3xl font-black mb-2 text-[var(--main-gold)] drop-shadow tracking-wider">
-            Admin Panel: <span className="text-[var(--main-accent)]">{tournament.title}</span>
+    <div className="min-h-screen w-full bg-[var(--bg)] flex flex-col pt-20 px-4">
+      <div className="max-w-7xl mx-auto w-full flex flex-col gap-6 animate-fade-in">
+        {/* Header */}
+        <div className="u-card flex flex-col gap-2 p-6 text-center">
+          <h2 className="text-3xl font-black text-[var(--gold)] tracking-wide">
+            Admin Panel
           </h2>
-          <div className="text-lg text-[var(--main-gold-dark)] font-bold mb-2">
-            Current Round: <span className="text-white">{tournament.currentRound}</span>
+          <h3 className="text-xl font-bold text-[var(--text)]">
+            {tournament.title}
+          </h3>
+          <div className="text-sm text-[var(--text-dim)]">
+            Current Round:{" "}
+            <span className="u-pill bg-[var(--gold)] text-[var(--dark)]">
+              {tournament.currentRound}
+            </span>
           </div>
-          <div>
-            <h3 className="font-semibold mb-3 text-[var(--main-gold-dark)] text-lg">Live Bracket</h3>
-            <BracketDisplay tournament={tournament} />
-          </div>
+        </div>
 
-          {winner && (
-            <div className="winner-banner bg-yellow-200 text-xl font-bold rounded-xl px-6 py-4 shadow-lg text-center my-8">
-              🎉 Tournament Winner: <span className="text-[var(--main-gold-dark)]">{winner}</span> 🎉
+{/* Bracket */}
+<div className="u-card p-6 overflow-x-auto">
+  <h3 className="font-semibold mb-4 text-[var(--gold)] text-lg">
+    Live Bracket
+  </h3>
+  <div className="min-w-max">
+    <BracketDisplay tournament={tournament} />
+  </div>
+</div>
+
+
+        {/* Winner banner */}
+        {winner && (
+          <div className="u-card text-center py-6">
+            <div className="text-2xl font-black text-[var(--gold)] animate-bounce">
+              🎉 Tournament Winner 🎉
             </div>
-          )}
+            <div className="text-xl mt-2 font-bold text-[var(--text)]">
+              {winner}
+            </div>
+          </div>
+        )}
 
+        {/* Action button */}
+        {!winner && (
           <button
-            className={`py-4 px-8 rounded-xl bg-gradient-to-r from-[#EF4444] via-[#9d4edd] to-[#3B82F6] text-[var(--main-dark)] font-black text-lg tracking-wide shadow-xl border-2 border-[#3B82F6] hover:from-[#3B82F6] hover:to-[#EF4444] transition-all duration-200 active:scale-95 mt-8 mx-auto`}
+            className={`u-btn u-btn--primary text-lg py-4 ${
+              (!canAdvance || loading) && "opacity-50 cursor-not-allowed"
+            }`}
             disabled={!canAdvance || loading}
             onClick={handleAdvance}
           >
-            {loading ? 'Advancing...' : 'Proceed to Next Round'}
+            {loading ? "Advancing…" : "Proceed to Next Round"}
           </button>
-        </div>
+        )}
       </div>
     </div>
   );
 }
-
-export default AdminPanel;

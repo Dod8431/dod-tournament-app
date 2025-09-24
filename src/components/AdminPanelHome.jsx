@@ -3,13 +3,21 @@ import MyTournaments from "./MyTournaments";
 
 export default function AdminPanelHome() {
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-[var(--main-bg)] via-[var(--main-dark)] to-[var(--main-gold-dark)] py-16 animate-fade-in">
-      {/* Removed container max-width constraint */}
-      <div className="w-full h-full flex justify-center items-center p-8">
-        <div className="w-full h-full p-8 rounded-2xl bg-[var(--main-dark)]/90 border-2 border-[var(--main-gold-dark)] shadow-2xl flex flex-col gap-6 animate-fade-in">
-          <h1 className="text-4xl font-extrabold mb-10 text-[var(--main-gold)] tracking-wider drop-shadow-lg">
+    <div className="min-h-screen w-full bg-gradient-to-br from-[var(--main-bg)] via-[var(--main-dark)] to-[var(--main-gold-dark)] py-16 px-6 animate-fade-in">
+      <div className="max-w-6xl mx-auto flex flex-col gap-10">
+        {/* Header */}
+        <header className="text-center">
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-[var(--main-gold)] drop-shadow mb-2">
             Admin Panel
           </h1>
+          <div className="h-1 w-24 mx-auto bg-[var(--main-gold)] rounded-full shadow-md"></div>
+          <p className="mt-4 text-[var(--main-gold-dark)] text-lg tracking-wide">
+            Manage and monitor your tournaments
+          </p>
+        </header>
+
+        {/* Content */}
+        <div className="u-card p-8 flex flex-col gap-6">
           <MyTournaments />
         </div>
       </div>

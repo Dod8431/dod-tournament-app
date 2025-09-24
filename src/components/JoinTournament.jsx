@@ -7,10 +7,10 @@ function JoinTournament() {
   const [tournament, setTournament] = useState(null);
   const [username, setUsername] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Vérifie si l'utilisateur est déjà stocké (reprend automatiquement)
+  // Vérifie si un user est déjà enregistré → skip direct vers vote
   useEffect(() => {
     try {
       const existingUser = JSON.parse(localStorage.getItem(`tourn_${tid}_user`));
@@ -42,7 +42,7 @@ function JoinTournament() {
 
   const handleJoin = async (e) => {
     e.preventDefault();
-    setError("");
+    setError('');
     if (!username.trim()) {
       setError("Username required.");
       return;
@@ -67,69 +67,68 @@ function JoinTournament() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-gradient-to-br from-[var(--main-bg)] to-[var(--main-dark)]">
-        <div
-          className="rounded-2xl shadow-2xl px-8 py-10 w-full max-w-md flex flex-col gap-2 animate-fade-in bg-[var(--main-dark)] border-2.5 border-[#ff6584] text-[var(--main-gold)]"
-          style={{
-            boxShadow: "0 8px 32px 0 var(--main-gold-dark)",
-            backdropFilter: "blur(10px)"
-          }}
-        >
-          <h2 className="text-2xl font-bold text-[#ff6584] mb-1">Error</h2>
-          <div className="text-base">{error}</div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[var(--main-bg)] px-4">
+        <div className="u-card border-[#ff6584] text-[#ff6584]">
+          <h2 className="text-2xl font-extrabold mb-2">Error</h2>
+          <p>{error}</p>
         </div>
       </div>
     );
   }
 
-  if (!tournament)
+  if (!tournament) {
     return (
-      <div className="flex justify-center items-center min-h-screen text-2xl bg-[var(--main-bg)]">
-        <span className="text-[var(--main-gold)] animate-fade-in">Loading…</span>
+      <div className="flex justify-center items-center min-h-screen bg-[var(--main-bg)]">
+        <span className="text-[var(--main-gold)] font-bold animate-pulse text-xl">
+          Loading tournament...
+        </span>
       </div>
     );
+  }
 
   const isClosed = tournament.isActive === false;
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-[var(--main-bg)] to-[var(--main-dark)]"
-    >
-      <div
-        className="p-8 rounded-3xl shadow-2xl w-full max-w-md flex flex-col gap-6 animate-fade-in bg-[var(--main-dark)] border-2.5 border-[var(--main-gold)] text-[var(--main-gold)]"
-        style={{
-          boxShadow: "0 8px 32px 0 var(--main-gold-dark)",
-          backdropFilter: "blur(10px)"
-        }}
-      >
-        <h2 className="text-2xl font-black text-[var(--main-gold)] mb-2 drop-shadow">Join Tournament</h2>
-        <div className="font-semibold text-lg text-[var(--main-gold-dark)] mb-1">
-          {tournament.title || <span className="text-[#ff6584]">Untitled</span>}
+    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-[var(--main-bg)] to-[var(--main-dark)]">
+      <div className="u-card w-full max-w-lg p-10 animate-fade-in flex flex-col gap-6">
+        
+        {/* Header */}
+        <h2 className="text-3xl font-black text-center text-[var(--main-gold)] drop-shadow">
+          Join Tournament
+        </h2>
+        <div className="text-center">
+          <p className="text-lg font-semibold text-[var(--main-gold-dark)]">
+            {tournament.title || <span className="text-[#ff6584]">Untitled</span>}
+          </p>
         </div>
+
         {isClosed && (
-          <div className="text-[#ff6584] font-semibold text-base mb-2">
-            This tournament is closed.
+          <div className="text-[#ff6584] font-bold text-center text-base bg-[#ff658422] border border-[#ff6584] rounded-lg px-4 py-2">
+            🚫 This tournament is closed.
           </div>
         )}
-        <form onSubmit={handleJoin} className="flex flex-col gap-4">
-          <input
-            className="rounded-xl px-4 py-3 text-base bg-[var(--main-bg)] border border-[var(--main-gold-dark)] focus:ring-2 focus:ring-[var(--main-gold)] text-[var(--main-gold)] outline-none transition"
-            required
-            disabled={isClosed}
-            placeholder="Choose a username"
-            value={username}
-            maxLength={24}
-            onChange={e => setUsername(e.target.value)}
-            autoComplete="off"
-          />
-          <button
-            type="submit"
-            className={`rounded-2xl px-6 py-3 font-bold tracking-wide text-lg shadow bg-[var(--main-gold)] hover:bg-[var(--main-gold-dark)] text-[var(--main-dark)] transition-all duration-300 focus:ring-2 focus:ring-[var(--main-gold)] focus:outline-none ${isClosed ? "opacity-60 cursor-not-allowed" : ""}`}
-            disabled={loading || isClosed}
-          >
-            {loading ? 'Joining...' : 'Join & Vote'}
-          </button>
-        </form>
+
+        {/* Form */}
+        {!isClosed && (
+          <form onSubmit={handleJoin} className="flex flex-col gap-4">
+            <input
+              className="rounded-xl px-4 py-3 text-base bg-[var(--main-bg)] border border-[var(--main-gold-dark)] focus:ring-2 focus:ring-[var(--main-gold)] text-[var(--main-gold)] outline-none transition text-center font-semibold"
+              required
+              placeholder="Enter your nickname"
+              value={username}
+              maxLength={24}
+              onChange={(e) => setUsername(e.target.value)}
+              autoComplete="off"
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="rounded-2xl px-6 py-3 font-extrabold tracking-wide text-lg shadow bg-[var(--main-gold)] hover:bg-[var(--main-gold-dark)] text-[var(--main-dark)] transition-all duration-300 focus:ring-2 focus:ring-[var(--main-gold)] focus:outline-none disabled:opacity-60"
+            >
+              {loading ? "Joining..." : "Join & Vote"}
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );

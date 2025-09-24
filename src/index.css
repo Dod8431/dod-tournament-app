@@ -2,173 +2,138 @@
 @tailwind components;
 @tailwind utilities;
 
-/* --- Global Dark/Gold Palette as CSS Vars --- */
 :root {
-  --main-bg: #23272a;
-  --main-dark: #18191a;
-  --main-gold: #FFD700;
-  --main-gold-dark: #B8860B;
-  --text-bright: #fffbea;
+  /* Palette principale */
+  --bg: #0e0f12;
+  --bg-elev: #14161b;
+  --surface: #1a1d24;
+  --line: #2b2f39;
+
+  --gold: #f4cf6b;
+  --gold-600: #d9b24c;
+  --gold-700: #b8923b;
+  --gold-800: #8a6b2b;
+
+  --text: #f5f6f8;
+  --text-dim: #b6bcc8;
+  --accent-bad: #ff6f91;
+  --accent-bad-200: #ff99ba;
+
+  /* Typo scale */
+  --fz-xs: 12px;
+  --fz-sm: 14px;
+  --fz-md: 16px;
+  --fz-lg: 18px;
+  --fz-xl: 22px;
+  --fz-2xl: 28px;
+  --fz-3xl: 36px;
+
+  /* Radius & shadow */
+  --r-sm: .5rem;
+  --r-md: 1rem;
+  --r-lg: 1.25rem;
+  --r-2xl: 1.5rem;
+  --shadow-1: 0 8px 24px rgba(0,0,0,.25);
+  --shadow-2: 0 12px 40px rgba(0,0,0,.35);
+
+  /* Compat avec tes classes existantes */
+  --main-bg: var(--bg);
+  --main-dark: var(--surface);
+  --main-gold: var(--gold);
+  --main-gold-dark: var(--gold-700);
 }
 
-/* --- Main App BG and Text --- */
-body {
-  @apply bg-[var(--main-bg)] text-[var(--main-gold-dark)] font-sans;
+/* Thème clair (optionnel) */
+:root[data-theme="light"]{
+  --bg: #f7f8fb;
+  --bg-elev: #ffffff;
+  --surface: #ffffff;
+  --line: #e8ebf1;
+  --text: #1b1f2a;
+  --text-dim: #566079;
 }
 
-/* Card look, gold borders and background */
-.card {
-  @apply bg-[var(--main-dark)] text-[var(--main-gold)] rounded-2xl shadow-lg border border-[var(--main-gold-dark)] p-6 transition-all duration-200;
+/* Utilitaires visuels */
+.u-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-2xl);
+  box-shadow: var(--shadow-1);
 }
 
-.card-flat {
-  @apply bg-[var(--main-bg)] rounded-xl border border-[var(--main-gold-dark)] shadow-none;
+.u-btn {
+  border-radius: var(--r-2xl);
+  padding: .8rem 1.1rem;
+  font-weight: 800;
+  letter-spacing: .02em;
+  transition: transform .06s ease, box-shadow .2s ease, background .2s ease;
+}
+.u-btn:active { transform: translateY(1px) }
+
+.u-btn--primary {
+  background: var(--gold);
+  color: #1b1f2a;
+}
+.u-btn--primary:hover { background: var(--gold-600) }
+
+.u-btn--ghost {
+  background: transparent;
+  color: var(--gold);
+  border: 1px solid var(--gold-700);
+}
+.u-btn--danger {
+  background: #2b0f16;
+  color: #ff99ba;
+  border: 1px solid #7c3043;
 }
 
-/* Modern flat input */
-.input, .input-bordered {
-  @apply bg-[var(--main-dark)] border border-[var(--main-gold-dark)] text-[var(--main-gold)] rounded-lg px-4 py-2 outline-none transition focus:ring-2 focus:ring-[var(--main-gold)];
+/* Chips / badges */
+.u-pill {
+  display: inline-flex; align-items:center; gap:.5rem;
+  padding: .35rem .7rem;
+  border-radius: 999px;
+  border: 1px solid var(--gold-800);
+  background: linear-gradient(180deg, rgba(244,207,107,.12), rgba(244,207,107,.04));
+  color: var(--gold);
+  font-weight: 700; font-size: var(--fz-sm);
 }
 
-/* Gold Button Style */
-.btn, .btn-primary {
-  @apply bg-[var(--main-gold)] text-[var(--main-dark)] font-bold rounded-xl px-6 py-2 transition hover:bg-[var(--main-gold-dark)] hover:text-[var(--main-gold)] active:scale-95 shadow-lg border border-[var(--main-gold-dark)];
+/* Skeleton */
+.skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,.06), rgba(255,255,255,.14), rgba(255,255,255,.06));
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+  border-radius: .75rem;
 }
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
-/* Utility for bricks */
-.brick {
-  @apply bg-[var(--main-dark)] text-[var(--main-gold)] rounded-xl shadow-lg border border-[var(--main-gold-dark)] p-4;
-}
+/* Subtle fade/slide */
+@keyframes fadeUp { from{opacity:0; transform: translateY(6px)} to{opacity:1; transform:none} }
+.animate-fade-up { animation: fadeUp .28s ease both }
 
-/* Heading styles (now gold themed) */
-h1, .h1 { @apply text-4xl font-extrabold text-[var(--main-gold)] mb-8; }
-h2, .h2 { @apply text-2xl font-bold text-[var(--main-gold-dark)] mb-4; }
-h3, .h3 { @apply text-xl font-bold text-[var(--main-gold)] mb-2; }
-
-/* Animations */
-@layer utilities {
-  .animate-fade-in {
-    animation: fadein 0.3s cubic-bezier(0.25,1,0.5,1);
-  }
-  .animate-pop {
-    animation: popin 0.35s cubic-bezier(0.25,1.25,0.5,1.15);
-  }
-  .animate-slide-up {
-    animation: slideup 0.5s cubic-bezier(0.25,1,0.5,1);
-  }
-  @keyframes fadein {
-    from { opacity: 0; transform: scale(0.98);}
-    to { opacity: 1; transform: scale(1);}
-  }
-  @keyframes popin {
-    0% { opacity: 0; transform: scale(0.8);}
-    80% { opacity: 1; transform: scale(1.05);}
-    100% { opacity: 1; transform: scale(1);}
-  }
-  @keyframes slideup {
-    0% { opacity: 0; transform: translateY(60px);}
-    100% { opacity: 1; transform: translateY(0);}
-  }
-}
-
-/* --- VS (FaceOff) Panel, Healthbars, Borders: Keep blue/red for match UX --- */
-.vs-bg {
-  background: linear-gradient(120deg, var(--main-bg) 55%, var(--main-dark) 100%);
-}
-.vs-vignette {
-  box-shadow: 0 0 80px 20px var(--main-gold-dark) inset;
-}
-
-/* --- Healthbars and battle UI: Keep blue/red for drama --- */
+/* Healthbars */
 .healthbar-outer {
-  height: 16px;
-  width: 220px;
-  border-radius: 10px;
-  background: #282828;
-  box-shadow: 0 0 8px #000 inset;
-  overflow: hidden;
-  margin-bottom: 8px;
-}
-.healthbar-inner {
-  height: 100%;
-  transition: width 0.8s cubic-bezier(.7,0,.7,1.1), background 0.2s;
-}
-.healthbar-blue {
-  background: linear-gradient(90deg, #2563eb 30%, #60a5fa 100%);
-}
-.healthbar-red {
-  background: linear-gradient(90deg, #ef4444 20%, #f87171 100%);
-}
-.battle-border-blue {
-  box-shadow: 0 0 12px 3px #2563eb, 0 0 36px 4px #60a5fa77 inset;
-  animation: borderflicker-blue 0.9s infinite alternate;
-}
-@keyframes borderflicker-blue {
-  from { box-shadow: 0 0 12px 3px #2563eb, 0 0 36px 4px #60a5fa44 inset; }
-  to   { box-shadow: 0 0 24px 7px #60a5fa, 0 0 48px 12px #2563eb88 inset; }
-}
-.battle-border-red {
-  box-shadow: 0 0 12px 3px #be123c, 0 0 36px 4px #ef444477 inset;
-  animation: borderflicker-red 0.9s infinite alternate;
-}
-@keyframes borderflicker-red {
-  from { box-shadow: 0 0 12px 3px #be123c, 0 0 36px 4px #ef444433 inset; }
-  to   { box-shadow: 0 0 24px 7px #ef4444, 0 0 48px 12px #be123c88 inset; }
-}
-
-/* VS and battle BG - now dark with subtle gold vignette */
-.battle-bg {
-  background: linear-gradient(120deg, var(--main-bg) 0%, var(--main-dark) 100%);
-  min-height: 100vh;
-  width: 100vw;
+  height: 1rem;
+  background: #2b2f39;
+  border-radius: 999px;
+  border: 1px solid var(--line);
   overflow: hidden;
   position: relative;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,.45);
 }
 
-.battle-bg::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    45deg,
-    #222 0 2px, transparent 2px 40px
-  );
-  opacity: 0.09;
-  z-index: 0;
-  animation: bgmove 18s linear infinite;
-}
-@keyframes bgmove {
-  0% { background-position: 0 0; }
-  100% { background-position: 180px 80px; }
-}
-
-/* Center crack */
-.faceoff-crack {
-  pointer-events: none;
-  position: absolute;
-  top: 7vw;
-  left: 50%;
-  width: 6vw;
-  min-width: 40px;
-  max-width: 70px;
-  height: 44vh;
-  transform: translateX(-50%);
-  z-index: 30;
-}
-@media (max-width: 800px) {
-  .faceoff-crack { top: 80px; height: 32vh;}
-}
-.crack-svg {
-  width: 100%;
+.healthbar-inner {
   height: 100%;
-  stroke: #FFD700;
-  stroke-width: 2.5;
-  filter: drop-shadow(0 0 18px #FFD70099) drop-shadow(0 0 32px #FFD70055);
-  opacity: 0.93;
-  animation: crackpulse 1.1s cubic-bezier(.82,0,.62,1) alternate infinite;
+  transition: width 0.7s ease-out; /* Animation fluide comme un KO */
 }
 
-@keyframes crackpulse {
-  from { filter: drop-shadow(0 0 12px #FFD700) drop-shadow(0 0 16px #FFD70055);}
-  to   { filter: drop-shadow(0 0 32px #FFD700) drop-shadow(0 0 44px #FFD70090);}
+.healthbar-blue {
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  box-shadow: 0 0 10px rgba(59,130,246,.6);
 }
+
+.healthbar-red {
+  background: linear-gradient(90deg, #ef4444, #f87171);
+  box-shadow: 0 0 10px rgba(239,68,68,.6);
+}
+

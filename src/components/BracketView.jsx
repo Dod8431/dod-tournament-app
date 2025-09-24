@@ -3,12 +3,6 @@ import { useParams } from 'react-router-dom';
 import { listenTournament } from '../firebase/firestore';
 import BracketDisplay from './BracketDisplay';
 
-// Custom theme background
-const themeBg = {
-  violet: "bg-gradient-to-br from-[--main-bg] via-[#3c096c] to-[--main-bg]", // Updated with solid color
-  dark: "bg-[#10002b]", // Dark background
-};
-
 function BracketView() {
   const { tid } = useParams();
   const [tournament, setTournament] = useState(null);
@@ -22,27 +16,42 @@ function BracketView() {
     return () => unsub && unsub();
   }, [tid]);
 
-  if (loading || !tournament)
+  if (loading || !tournament) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-[#10002b]">
-        <span className="text-[#E5E7EB] font-bold text-xl animate-pulse">Loading...</span>
+      <div className="flex justify-center items-center min-h-screen bg-[var(--main-bg)]">
+        <div className="text-[var(--main-gold)] font-bold text-xl animate-pulse">
+          Loading tournament...
+        </div>
       </div>
     );
+  }
 
-  if (!Array.isArray(tournament.bracket) || tournament.bracket.length === 0)
+  if (!Array.isArray(tournament.bracket) || tournament.bracket.length === 0) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-[#10002b]">
-        <span className="text-lg text-[#E5E7EB]/70">No bracket available.</span>
+      <div className="flex justify-center items-center min-h-screen bg-[var(--main-bg)]">
+        <span className="text-lg text-[var(--main-gold-dark)]">
+          No bracket available for this tournament.
+        </span>
       </div>
     );
+  }
 
   return (
-    <div className={`${themeBg.violet} min-h-screen w-screen flex flex-col items-stretch`} style={{ minHeight: "100vh", width: "100vw" }}>
-      <div className="max-w-7xl w-full mx-auto pt-12 px-2">
-        <h2 className="text-4xl font-black tracking-tight text-center mb-8 text-[#E5E7EB] drop-shadow animate-fade-in">
-          Live Tournament Bracket
-        </h2>
-        <div className="animate-fade-in">
+    <div className="min-h-screen w-screen bg-gradient-to-br from-[var(--main-bg)] via-[var(--main-dark)] to-[var(--main-gold-dark)]">
+      <div className="max-w-7xl w-full mx-auto pt-16 pb-12 px-4 flex flex-col gap-10">
+        
+        {/* Header */}
+        <header className="text-center animate-fade-in">
+          <h2 className="text-4xl sm:text-5xl font-black text-[var(--main-gold)] drop-shadow">
+            {tournament.title || "Live Tournament Bracket"}
+          </h2>
+          <p className="mt-3 text-[var(--main-gold-dark)] font-semibold tracking-wide">
+            Round {tournament.currentRound}
+          </p>
+        </header>
+
+        {/* Bracket content */}
+        <div className="u-card p-6 animate-fade-in">
           <BracketDisplay tournament={tournament} />
         </div>
       </div>
